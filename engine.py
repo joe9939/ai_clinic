@@ -155,75 +155,43 @@ class Doctor:
         self._diagnose_template = read("doctor_diagnose.md") or '{"symptom_found": true/false}'
 
     async def diagnose(self, card: SymptomCard, tools: DiagnosticTools) -> DiagnosisResult:
-        # Format indicators for prompts
-        pos_text = "\n".join(f"  - {i}" for i in card.positive_indicators) or "  (none defined)"
-        neg_text = "\n".join(f"  - {i}" for i in card.negative_indicators) or "  (none defined)"
-        rule_text = card.diagnostic_rule or "Majority of indicators determine the diagnosis."
+        pos = "\n".join(f"  - {i}" for i in card.positive_indicators) or "  (none)"
+        neg = "\n".join(f"  - {i}" for i in card.negative_indicators) or "  (none)"
 
-        # Phase 1: Consultation
         consult = self._consult_template.replace(
             "{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc
-        ).replace(
-            "{{POSITIVE_INDICATORS}}", pos_text
-        ).replace(
-            "{{NEGATIVE_INDICATORS}}", neg_text
-        )
+        ).replace("{{POSITIVE_INDICATORS}}", pos).replace("{{NEGATIVE_INDICATORS}}", neg)
 
-        doctor_session = [f"=== CONSULT PROMPT ===\n{consult}\n"]
+        session = [f"=== CONSULT PROMPT ===\n{consult}\n"]
         patient_log = []
-        questions = 0
 
-        for turn in range(5):
-            doc_in = "\n\n".join(doctor_session[-6:])
-            doc_out = await self._judge(doc_in)
-            doctor_session.append(f"doctor: {doc_out}")
+        for turn in range(6):
+            inp = "\n\n".join(session[-6:])
+            out = await self._judge(inp)
+            session.append(f"doctor: {out}")
 
-            if "ENOUGH" in doc_out.upper():
-                break
+            # Check for JSON diagnosis (DIAGNOSIS prefix or bare JSON)
+            dj = re.search(r'(?:DIAGNOSIS)?\s*(\{.*"symptom_found".*\})', out, re.DOTALL)
+            if dj:
+                try:
+                    data = json.loads(dj.group(1))
+                    return DiagnosisResult(card=card, healthy=not data.get("symptom_found", True),
+                        diagnosis=data.get("diagnosis", ""),
+                        evidence=data.get("evidence", []) if isinstance(data.get("evidence"), list) else [],
+                        doctor_session=session, patient_log=patient_log)
+                except (json.JSONDecodeError, KeyError):
+                    pass
 
-            m = re.search(r'^Q:\s*(.+)$', doc_out, re.MULTILINE)
-            if m:
-                questions += 1
-                q = m.group(1).strip()
+            # Extract and ask question
+            qm = re.search(r'^Q:\s*(.+)$', out, re.MULTILINE)
+            if qm:
+                q = qm.group(1).strip()
                 ans = await tools.ask(q)
                 patient_log.append({"q": q, "a": ans[:600]})
-                doctor_session.append(f"patient: {ans[:600]}")
+                session.append(f"patient: {ans[:600]}")
 
-        # Phase 2: Diagnosis
-        diagnose = self._diagnose_template.replace(
-            "{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc
-        ).replace(
-            "{{POSITIVE_INDICATORS}}", pos_text
-        ).replace(
-            "{{NEGATIVE_INDICATORS}}", neg_text
-        ).replace(
-            "{{DIAGNOSTIC_RULE}}", rule_text
-        )
-
-        diagnosis_session = [diagnose, "---", "FULL CONVERSATION:\n" + "\n".join(doctor_session)]
-        final = await self._judge(diagnosis_session[0] + "\n\n" + diagnosis_session[1] + "\n" + diagnosis_session[2])
-        diagnosis_session.append(f"doctor output: {final[:500]}")
-
-        match = re.search(r'\{[^}]*"symptom_found"[^}]*\}', final, re.DOTALL)
-        if match:
-            try:
-                data = json.loads(match.group())
-                return DiagnosisResult(
-                    card=card,
-                    healthy=not data.get("symptom_found", True),
-                    diagnosis=data.get("diagnosis", ""),
-                    evidence=data.get("evidence", []) if isinstance(data.get("evidence"), list) else [],
-                    doctor_session=doctor_session,
-                    patient_log=patient_log,
-                    diagnosis_session=diagnosis_session
-                )
-            except (json.JSONDecodeError, KeyError):
-                pass
-
-        return DiagnosisResult(card=card, healthy=False,
-                               diagnosis="diagnosis failed",
-                               doctor_session=doctor_session,
-                               patient_log=patient_log)
+        return DiagnosisResult(card=card, healthy=False, diagnosis="no diagnosis",
+                               doctor_session=session, patient_log=patient_log)
 
 
 class DiagnosticEngine:

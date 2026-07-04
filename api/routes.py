@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from models.base import PatientModel, DoctorModel
-from engine import DiagnosticEngine, SymptomCard
+from ai_clinic.engine import DiagnosticEngine, SymptomCard
 
 
 # ── Leaderboard Storage ──────────────────────

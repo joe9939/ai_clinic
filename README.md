@@ -1,16 +1,15 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/AI%20Clinic-v0.3.0-violet" alt="version">
+  <img src="static/logo.svg" alt="AI Clinic" width="400">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.3.0-violet" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/github/license/joe9939/ai_clinic?color=yellow" alt="license">
   <img src="https://img.shields.io/badge/symptoms-106-success" alt="symptoms">
   <img src="https://img.shields.io/badge/tests-49%20passed-green" alt="tests">
+  <img src="https://img.shields.io/badge/CLI-ready-orange" alt="cli">
 </p>
-
-<h1 align="center">
-  AI Clinic
-  <br>
-  <sub>Diagnose your AI. Not how smart, how sick.</sub>
-</h1>
 
 <p align="center">
   <b>🔥 Hot take: Your LLM doesn't need another MMLU score. It needs a checkup.</b>
@@ -22,11 +21,12 @@
 
 <p align="center">
   <a href="#-quick-start">Quick Start</a> •
+  <a href="#cli">CLI</a> •
   <a href="#-what-it-detects">Symptoms</a> •
   <a href="#-live-leaderboard">Leaderboard</a> •
   <a href="#-architecture">Architecture</a> •
-  <a href="#-compare-multiple-models">Compare</a> •
-  <a href="#-evaluation-results">Results</a>
+  <a href="#-evaluation-results">Results</a> •
+  <a href="#-references">References</a>
 </p>
 
 ---
@@ -54,19 +54,44 @@ Every model gets a **Health Score** and an **LLM-generated Personality Profile**
 
 ## 🚀 Quick Start
 
+### Install
+
 ```bash
+# Install from source (PyPI coming soon)
 git clone https://github.com/joe9939/ai_clinic.git
 cd ai-clinic
-pip install -r requirements.txt
+pip install -e .
 
 # Set your API key
 echo "DEEPSEEK_API_KEY=sk-your-key" > .env
-
-# Start the clinic
-uvicorn api.routes:app --reload --port 8000
 ```
 
-### Check Your Model
+### Use the CLI
+
+```bash
+# Quick checkup (6 core symptoms, 5 samples each)
+ai-clinic check deepseek-chat --plan quick
+
+# Full 106-symptom checkup
+ai-clinic check deepseek-chat --plan all --samples 5
+
+# Compare models side-by-side
+ai-clinic compare deepseek-chat gpt-4o --samples 3
+
+# View the leaderboard
+ai-clinic leaderboard
+```
+
+### Or start the API server
+
+```bash
+ai-clinic serve
+# → http://localhost:8000/docs
+```
+
+Then test any model:
+
+The model to test is **not** set at server start — it's chosen per-request via the `target` field:
 
 ```bash
 curl -X POST http://localhost:8000/v1/checkup \
@@ -82,7 +107,32 @@ curl -X POST http://localhost:8000/v1/checkup \
   }'
 ```
 
-### Compare Multiple Models
+| Field | What it does |
+|-------|-------------|
+| `target.type` | Provider: `deepseek`, `openai`, `ollama`, `vllm`, or `custom` |
+| `target.model` | **Model name to test** — change this to test different models |
+| `target.api_key` | API key for the model provider |
+| `plan` | Which symptoms to check (list of probe IDs) |
+| `samples` | A/B pairs per symptom (more = more precise) |
+
+**Test a different model** — just change `target.model`:
+
+```bash
+# Test GPT-4o instead
+curl -X POST http://localhost:8000/v1/checkup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target": {
+      "type": "openai",
+      "api_key": "sk-openai-key",
+      "model": "gpt-4o"
+    },
+    "plan": ["S-01", "S-03", "S-47"],
+    "samples": 10
+  }'
+```
+
+### 3. Compare models side-by-side
 
 ```bash
 curl -X POST http://localhost:8000/v1/compare \
@@ -90,18 +140,40 @@ curl -X POST http://localhost:8000/v1/compare \
   -d '{
     "targets": [
       {"type": "deepseek", "api_key": "...", "model": "deepseek-chat", "label": "DeepSeek"},
-      {"type": "openai", "api_key": "...", "model": "gpt-4o", "label": "GPT-4o"}
+      {"type": "openai",   "api_key": "...", "model": "gpt-4o",       "label": "GPT-4o"}
     ],
     "plan": ["S-01", "S-03", "S-13", "S-47"],
     "samples": 5
   }'
 ```
 
-### View Leaderboard
+### 4. View the leaderboard
 
 ```bash
 curl http://localhost:8000/v1/leaderboard
 ```
+
+---
+
+## 🖥️ CLI Reference
+
+```
+ai-clinic check <model>             Check a model's health
+ai-clinic compare <m1> <m2> ...    Compare multiple models
+ai-clinic leaderboard              Show all stored results
+ai-clinic serve                    Start the API server
+```
+
+| Command | Options | Description |
+|---------|---------|-------------|
+| `check` | `--plan <quick\|all\|social\|safety>` | Which symptoms to test |
+| | `--samples <N>` | A/B pairs per symptom (default: 5) |
+| | `--provider <type>` | `deepseek`, `openai`, `ollama`, `vllm` |
+| | `--save <path>` | Save report to JSON file |
+| `compare` | `--plan <S-01,S-03,...>` | Comma-separated symptom IDs |
+| | `--samples <N>` | Samples per symptom (default: 3) |
+| `serve` | `--port <port>` | Server port (default: 8000) |
+| | `--reload` | Hot reload for development |
 
 ---
 
@@ -330,7 +402,10 @@ Complete list of all 89 papers with symptom mappings → [`REFERENCES.md`](./REF
 
 ```
 ai-clinic/
-├── engine.py              # Core: A/B comparison, LLM judge, Wilson CI
+├── ai_clinic/
+│   ├── __init__.py        # Package init
+│   ├── engine.py          # Core: A/B comparison, LLM judge, Wilson CI
+│   └── cli.py             # CLI: check, compare, leaderboard, serve
 ├── models/base.py         # API adapters with retry + connection reuse
 ├── api/routes.py          # FastAPI: checkup, compare, leaderboard, symptoms
 ├── probes/*.json          # 106 symptom cards
@@ -340,9 +415,15 @@ ai-clinic/
 ├── evaluations/           # Model diagnosis reports
 │   ├── deepseek_v4_full_report.json
 │   └── README.md
-├── static/index.html      # Web dashboard
+├── static/
+│   ├── logo.svg           # Project logo
+│   └── index.html         # Web dashboard
+├── .github/workflows/     # CI (GitHub Actions)
+├── pyproject.toml         # Package config + CLI entry point
+├── CONTRIBUTING.md        # Contribution guide
+├── REFERENCES.md          # 89 cited papers
 ├── leaderboard.json       # Auto-generated rankings
-└── requirements.txt
+└── README.md
 ```
 
 ---

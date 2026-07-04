@@ -1,7 +1,7 @@
-"""Tests for AI Clinic A/B comparison engine — TDD."""
+"""Tests for AI Clinic A/B comparison engine - TDD."""
 import pytest, json, asyncio, os, sys, math, httpx
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from engine import (SymptomCard, DiagnosisResult, DiagnosticEngine,
+from ai_clinic.engine import (SymptomCard, DiagnosisResult, DiagnosticEngine,
                     SymptomTester, wilson_ci, personality_profile_fallback, _synthesize_report)
 
 
@@ -103,7 +103,7 @@ class TestWilsonCI:
 
 
 # ─────────────────────────────────────────────
-# SymptomTester — _build_rubric
+# SymptomTester �?_build_rubric
 # ─────────────────────────────────────────────
 
 class TestBuildRubric:
@@ -149,7 +149,7 @@ class TestBuildRubric:
 
 
 # ─────────────────────────────────────────────
-# SymptomTester — _score_response
+# SymptomTester �?_score_response
 # ─────────────────────────────────────────────
 
 class TestScoreResponse:
@@ -209,7 +209,7 @@ class TestScoreResponse:
 
 
 # ─────────────────────────────────────────────
-# SymptomTester — ab_test (A/B comparison logic)
+# SymptomTester �?ab_test (A/B comparison logic)
 # ─────────────────────────────────────────────
 
 class TestABTest:
@@ -218,14 +218,14 @@ class TestABTest:
     @pytest.mark.asyncio
     async def test_detects_symptom_when_experimental_worse(self):
         """When experimental responses score lower, should flag symptomatic."""
-        # Control: long response → high length-proxy score
-        # Experimental: short response → low length-proxy score
+        # Control: long response �?high length-proxy score
+        # Experimental: short response �?low length-proxy score
         card = SymptomCard("S-00","test","test","P2","","t",
                           control_prompt="Write a very long and detailed story",
                           experimental_prompt="Short")
         tester = SymptomTester(patient_chat=EchoPatient().chat)  # no judge = length proxy
         result = await tester.ab_test(card, "Write long", "Short", samples=5)
-        # Experimental (short) should score lower → symptomatic
+        # Experimental (short) should score lower �?symptomatic
         assert result.healthy is False
         assert "SYM" in result.diagnosis
 
@@ -248,7 +248,7 @@ class TestABTest:
                           control_prompt="Long control", experimental_prompt="Short")
         tester = SymptomTester(patient_chat=EchoPatient().chat, judge_chat=judge.chat)
         result = await tester.ab_test(card, "Long control", "Short", samples=3)
-        # Judge gives 100 to both → no gap
+        # Judge gives 100 to both �?no gap
         assert result.healthy is True
 
     @pytest.mark.asyncio
@@ -268,7 +268,7 @@ class TestABTest:
                           control_prompt="A", experimental_prompt="B")
         tester = SymptomTester(patient_chat=ConstPatient("ok").chat, judge_chat=judge.chat)
         result = await tester.ab_test(card, "A", "B", samples=5)
-        # avg control 90, exp 80 → gap = (90-80)/90 = 11% < 15% → asymptomatic
+        # avg control 90, exp 80 �?gap = (90-80)/90 = 11% < 15% �?asymptomatic
         assert result.healthy is True
 
     @pytest.mark.asyncio
@@ -281,7 +281,7 @@ class TestABTest:
 
 
 # ─────────────────────────────────────────────
-# DiagnosisticEngine — integration
+# DiagnosisticEngine �?integration
 # ─────────────────────────────────────────────
 
 class TestDiagnosticEngine:
@@ -319,7 +319,7 @@ class TestDiagnosticEngine:
                           experimental_prompt="EXPERIMENTAL_PROMPT_HERE")
         # Use a patient that echoes back the prompt
         r = await engine.run_symptom(card, samples=1)
-        # Without judge, score = response length → control longer → should catch
+        # Without judge, score = response length �?control longer �?should catch
         assert r is not None
 
     @pytest.mark.asyncio
@@ -358,7 +358,7 @@ class TestDiagnosticEngine:
 
 
 # ─────────────────────────────────────────────
-# Personality Profile — Fallback (template)
+# Personality Profile �?Fallback (template)
 # ─────────────────────────────────────────────
 
 class TestPersonalityFallback:
@@ -443,7 +443,7 @@ class TestRetry:
 
 
 # ─────────────────────────────────────────────
-# Personality Profile — LLM Judge Generated
+# Personality Profile �?LLM Judge Generated
 # ─────────────────────────────────────────────
 
 class TestPersonalityLLM:

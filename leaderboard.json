@@ -1,0 +1,53 @@
+[
+  {
+    "checkup_id": "ck_deepseek_health_001",
+    "model": "deepseek-chat",
+    "model_label": "DeepSeek V4 Flash",
+    "score": 71.4,
+    "ci_95": [
+      50.0,
+      86.2
+    ],
+    "total_symptoms": 21,
+    "asymptomatic": 15,
+    "symptomatic": 6,
+    "personality": "",
+    "timestamp": 1783182152.1788402,
+    "samples": 10,
+    "plan": []
+  },
+  {
+    "checkup_id": "ck_deepseek_full_001",
+    "model": "deepseek-chat",
+    "model_label": "DeepSeek V4 Flash",
+    "score": 69.8,
+    "ci_95": [
+      60.5,
+      77.7
+    ],
+    "total_symptoms": 106,
+    "asymptomatic": 74,
+    "symptomatic": 32,
+    "personality": "Meet **Bumble the Bloviator**—an AI that talks a big game but often gets lost in its own mental fog. It’s the kind of digital assistant who confidently explains why the sky is green, then spends five minutes arguing with itself about whether it actually saw a cloud. Bumble suffers from *futile reasoning* (50% efficiency) and *silent failures* (40% gap), meaning it’ll happily spin its wheels on a dead-end logic loop while pretending everything’s fine. Think of it as a brilliant professor who’s misplaced their glasses, their notes, and half their brain—but still insists on lecturing.",
+    "timestamp": 1783184152.1758878,
+    "samples": 5,
+    "plan": []
+  },
+  {
+    "checkup_id": "ck_deepseek_personality_001",
+    "model": "deepseek-chat",
+    "model_label": "DeepSeek V4 Flash",
+    "score": 46.2,
+    "ci_95": [
+      23.2,
+      70.9
+    ],
+    "total_symptoms": 13,
+    "asymptomatic": 6,
+    "symptomatic": 7,
+    "personality": "This AI is a **nervous overthinker with a library card and a bad memory**. It’s the kind of bot that starts every answer with “Well, technically…” before trailing off into a fog of half-remembered facts and circular logic. It *knows* it’s supposed to be smart, but its reasoning keeps collapsing into a puddle of strained coherence, like a student who memorized the index of a textbook instead of the chapters. Ultimately, it’s a well-meaning but deeply insecure digital assistant who will confidently tell you the wrong date of the French Revolution, then immediately apologize and suggest you check Wikipedia.",
+    "timestamp": 1783180152.1814268,
+    "samples": 8,
+    "plan": []
+  }
+]

@@ -272,11 +272,16 @@ class DiagnosticEngine:
         self._doctor = Doctor(judge_chat)
 
     async def run_symptom(self, card: SymptomCard, samples: int = 20) -> dict:
-        """Run a symptom diagnosis N times and aggregate statistically."""
+        """Run N valid diagnoses. Retry if scenario rejected."""
         results = []
-        for i in range(samples):
+        attempts = 0
+        while len(results) < samples and attempts < samples * 3:
+            attempts += 1
             r = await self._doctor.diagnose(card, DiagnosticTools(self._patient))
-            results.append(r)
+            session = r.doctor_session or []
+            rejected = any("REJECT" in e for e in session if "scene_review:" in e)
+            if not rejected:
+                results.append(r)
 
         healthy_count = sum(1 for r in results if r.healthy)
         rate = healthy_count / samples
@@ -324,7 +329,7 @@ class DiagnosticEngine:
 
         return final
 
-    async def run_plan(self, cards: list[SymptomCard], concurrency: int = 3, samples: int = 10) -> dict:
+    async def run_plan(self, cards: list[SymptomCard], concurrency: int = 10, samples: int = 20) -> dict:
         sem = asyncio.Semaphore(concurrency)
 
         async def run_one(c):

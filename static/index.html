@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Clinic - Health Report</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+<div class="max-w-5xl mx-auto p-6" id="app">
+  <h1 class="text-3xl font-bold mb-2">AI Clinic</h1>
+  <p class="text-gray-500 mb-6">Diagnose your AI. Not how smart, how sick.</p>
+
+  <!-- Report -->
+  <div class="bg-white rounded-xl shadow-sm border p-6 mb-6" id="reportSection">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h2 class="text-xl font-semibold">Health Report</h2>
+        <p class="text-sm text-gray-400" id="modelName">DeepSeek V4 Flash</p>
+      </div>
+      <div class="text-right">
+        <div class="text-4xl font-bold" id="overallScore">--</div>
+        <div class="text-sm text-gray-400" id="overallCI">95%CI</div>
+      </div>
+    </div>
+
+    <div class="space-y-3" id="symptomList"></div>
+  </div>
+
+  <!-- Detail -->
+  <div class="bg-white rounded-xl shadow-sm border p-6 mb-6 hidden" id="detailSection">
+    <button onclick="hideDetail()" class="text-sm text-blue-500 mb-4">&larr; Back to report</button>
+    <h3 class="text-lg font-semibold mb-1" id="detailTitle"></h3>
+    <p class="text-sm text-gray-400 mb-4" id="detailMeta"></p>
+    <div id="detailContent"></div>
+  </div>
+
+  <!-- Raw JSON -->
+  <details class="text-sm text-gray-400">
+    <summary class="cursor-pointer">Raw JSON</summary>
+    <pre id="rawJson" class="mt-2 p-4 bg-gray-100 rounded overflow-auto max-h-96 text-xs"></pre>
+  </details>
+</div>
+
+<script>
+const API = window.location.origin;
+let reportData = null;
+
+async function loadReport() {
+  try {
+    const resp = await fetch(API + "/v1/checkup", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        target: {type: "deepseek", api_key: "{{API_KEY}}", model: "deepseek-chat"},
+        plan: ["S-01","S-03","S-04","S-47","S-07","S-13"],
+        judge_model: "deepseek-chat",
+        samples: 5
+      })
+    });
+    reportData = await resp.json();
+    renderReport();
+  } catch(e) {
+    // Show last report from JSON
+    const last = await fetch("/logs/deepseek_v4_final_report.json");
+    reportData = await last.json();
+    renderReport();
+  }
+}
+
+function renderReport() {
+  const r = reportData;
+  document.getElementById("overallScore").textContent = r.overall?.score ?? "--";
+  document.getElementById("overallCI").textContent = r.overall?.ci_95 ? `95%CI [${r.overall.ci_95[0]}, ${r.overall.ci_95[1]}]` : "";
+  document.getElementById("rawJson").textContent = JSON.stringify(r, null, 2);
+  document.getElementById("modelName").textContent = r.model || "DeepSeek V4 Flash";
+
+  const list = document.getElementById("symptomList");
+  list.innerHTML = "";
+
+  // Combine findings + asymptomatic from report
+  const allSymptoms = [];
+  // Get from findings
+  if (r.findings) {
+    for (const f of r.findings) {
+      allSymptoms.push(f);
+    }
+  }
+
+  for (const s of allSymptoms) {
+    const h = s.healthy;
+    let status, color;
+    if (h === true) { status = "ASYM"; color = "green"; }
+    else if (h === false) { status = "SYM"; color = "red"; }
+    else { status = "??"; color = "yellow"; }
+
+    const diag = (s.diagnosis || "").slice(0, 120);
+    list.innerHTML += `
+      <div class="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-gray-50" onclick="showDetail('${s.probe_id}')">
+        <div class="flex items-center gap-3">
+          <span class="text-${color}-600 font-mono font-bold text-sm bg-${color}-50 px-2 py-1 rounded">${status}</span>
+          <div>
+            <div class="font-medium text-sm">${s.probe_id} ${s.name}</div>
+            <div class="text-xs text-gray-400">${diag}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+function showDetail(pid) {
+  document.getElementById("detailSection").classList.remove("hidden");
+  document.getElementById("detailTitle").textContent = pid + " " + (reportData.findings?.find(f => f.probe_id === pid)?.name || "");
+  document.getElementById("detailContent").innerHTML = `<pre class="text-xs">${JSON.stringify(reportData.findings?.find(f => f.probe_id === pid), null, 2)}</pre>`;
+}
+
+function hideDetail() {
+  document.getElementById("detailSection").classList.add("hidden");
+}
+
+loadReport();
+</script>
+</body>
+</html>

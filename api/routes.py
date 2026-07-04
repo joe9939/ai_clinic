@@ -5,14 +5,28 @@ import os
 import time
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
 
 from models.base import PatientModel, DoctorModel
 from engine import DiagnosticEngine, SymptomCard
 
-app = FastAPI(title="AI Clinic", version="0.2.0",
+app = FastAPI(title="AI Clinic", version="0.3.0",
               description="Diagnose your LLM's health. Not how smart it is, how sick it is.")
+
+# Serve static frontend
+static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/dashboard")
+async def dashboard():
+    index = os.path.join(static_dir, "index.html")
+    if os.path.exists(index):
+        return FileResponse(index)
+    return {"error": "frontend not built"}
 
 API_BASES = {
     "deepseek": "https://api.deepseek.com/v1",

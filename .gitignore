@@ -1,9 +1,37 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.env
 *.egg-info/
 dist/
 build/
 .venv/
 venv/
+
+# Env & secrets
+.env
+.env.local
+.env.production
+*.key
+**/secrets/
+
+# AI Clinic closed-source (cloud service)
+cloud/
+cloud-api/
+monitors/
+baselines/
+enterprise/
+frontend/
+
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data & logs
+*.log
+output/
+data/
+**/__pycache__/

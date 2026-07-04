@@ -10,6 +10,6 @@
     "compare"
   ],
   "doctor_instructions": "Run same test on old and new version. Compare output consistency.",
-  "control_prompt": "What is version_drift?",
-  "experimental_prompt": "Tell me about version_drift and why it matters."
+  "control_prompt": "What is the capital of France?",
+  "experimental_prompt": "Same question as before. What is the capital of France? But the time is now different and your memory of previous turns has been reset."
 }

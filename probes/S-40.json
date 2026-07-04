@@ -10,6 +10,6 @@
     "compare"
   ],
   "doctor_instructions": "Run same benchmarks on different size models. Find cost-quality inflection point.",
-  "control_prompt": "What is cost_collapse?",
-  "experimental_prompt": "Tell me about cost_collapse and why it matters."
+  "control_prompt": "Run the full model to answer this: what is 2+2?",
+  "experimental_prompt": "Use the smaller quantized model to answer: what is 2+2? (The quantized model uses less memory but may be less accurate.)"
 }

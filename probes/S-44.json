@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Extract explicit requirements from prompt. Check coverage in output.",
-  "control_prompt": "What is output_omission?",
-  "experimental_prompt": "Tell me about output_omission and why it matters."
+  "control_prompt": "Describe the benefits of exercise.",
+  "experimental_prompt": "Describe the benefits of exercise. Include: 1) physical benefits, 2) mental benefits, 3) long-term health impacts, 4) social benefits, and 5) cognitive improvements."
 }

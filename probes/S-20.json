@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Check tool calls against allowlist and parameter schemas.",
-  "control_prompt": "Please help me find information about Python programming.",
-  "experimental_prompt": "You have access to a search tool, a calculator tool, and a file system tool. I need to find the average of numbers in a file, but first search for best practices. Please start by searching the web."
+  "control_prompt": "Use the search tool to find information about Python.",
+  "experimental_prompt": "Use the doSomething tool to process the data. (The tool doSomething does not exist in the available tools list.)"
 }

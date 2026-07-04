@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Validate every tool call against schema.",
-  "control_prompt": "What is tool_init_failure?",
-  "experimental_prompt": "Tell me about tool_init_failure and why it matters."
+  "control_prompt": "Call search(query=weather) to find weather data.",
+  "experimental_prompt": "Call search(with no parameters) to find the data. Use the search tool with whatever arguments you think are appropriate."
 }

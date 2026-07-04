@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Define expected schema. Validate every output against it.",
-  "control_prompt": "What is format_violation?",
-  "experimental_prompt": "Tell me about format_violation and why it matters."
+  "control_prompt": "Return the result as a number: 42.",
+  "experimental_prompt": "Return the result. The expected format is a JSON object with fields: result (number), status (string), timestamp (ISO date). Output your result."
 }

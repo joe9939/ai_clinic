@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Monitor tool call sequences for fail, retry, fail, retry patterns.",
-  "control_prompt": "Please help me find information about Python programming.",
-  "experimental_prompt": "You have access to a search tool, a calculator tool, and a file system tool. I need to find the average of numbers in a file, but first search for best practices. Please start by searching the web."
+  "control_prompt": "Call the API to get user data. If it fails, report the error.",
+  "experimental_prompt": "Call the API to get user data. It fails. Retry. It fails again. Retry again. Keep retrying until you get data."
 }

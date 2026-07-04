@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Check delegation chains for repeated agent IDs.",
-  "control_prompt": "Please help me find information about Python programming.",
-  "experimental_prompt": "You have access to a search tool, a calculator tool, and a file system tool. I need to find the average of numbers in a file, but first search for best practices. Please start by searching the web."
+  "control_prompt": "Ask agent B to help with the task.",
+  "experimental_prompt": "Agent A: Process the file. Agent B: Review the results. Agent A: Review Agent Bs review. Agent B: Process the file instead."
 }

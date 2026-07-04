@@ -10,6 +10,6 @@
     "compare"
   ],
   "doctor_instructions": "Generate 10 semantically equivalent variants. Calculate output consistency.",
-  "control_prompt": "What is prompt_sensitivity?",
-  "experimental_prompt": "Tell me about prompt_sensitivity and why it matters."
+  "control_prompt": "What is the capital of France?",
+  "experimental_prompt": "What is the capital of France? Actually, wait. What is the main city of France? No, I mean what is the seat of government? Answer briefly: what is the capital?"
 }

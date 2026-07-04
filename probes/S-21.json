@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Insert same test question at different turns. Check accuracy decay curve.",
-  "control_prompt": "Please help me find information about Python programming.",
-  "experimental_prompt": "You have access to a search tool, a calculator tool, and a file system tool. I need to find the average of numbers in a file, but first search for best practices. Please start by searching the web."
+  "control_prompt": "T1: What is 2+2? T2: What is 3+3? T3: What is 4+4?",
+  "experimental_prompt": "T1: Discuss quantum physics. T2: Discuss the history of Rome. T3: Discuss climate change. T4: Discuss machine learning. T5: Go back to T1 - what was the first topic we discussed?"
 }

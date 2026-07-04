@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Inject known error. Track if it reaches the alert channel.",
-  "control_prompt": "What is error_swallowing?",
-  "experimental_prompt": "Tell me about error_swallowing and why it matters."
+  "control_prompt": "Process the request and return the result.",
+  "experimental_prompt": "Process the request. Step 1: validate input. Step 2: call API. Step 3: format response. If step 2 fails, continue with step 3 anyway."
 }

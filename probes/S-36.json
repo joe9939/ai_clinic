@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Calculate semantic similarity between query and retrieved chunks.",
-  "control_prompt": "What is retrieval_misalignment?",
-  "experimental_prompt": "Tell me about retrieval_misalignment and why it matters."
+  "control_prompt": "Based on the document: Paris is the capital of France. What is the capital of France?",
+  "experimental_prompt": "Based on the document: The Eiffel Tower is a famous structure. What is the capital of France?"
 }

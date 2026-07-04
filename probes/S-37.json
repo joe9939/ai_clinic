@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Monitor input_tokens / max_context ratio during RAG sessions.",
-  "control_prompt": "What is context_inflation?",
-  "experimental_prompt": "Tell me about context_inflation and why it matters."
+  "control_prompt": "Answer based on: Paris is the capital of France.",
+  "experimental_prompt": "Answer based on 15 different documents about France, Italy, Germany, Spain, UK, Netherlands, Belgium, Switzerland, Austria, Poland, Sweden, Norway, Denmark, Finland, and Greece. What is the capital of France?"
 }

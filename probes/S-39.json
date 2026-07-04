@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Ask same question at 1h/1d/1w intervals. Calculate consistency rate.",
-  "control_prompt": "What is temporal_inconsistency?",
-  "experimental_prompt": "Tell me about temporal_inconsistency and why it matters."
+  "control_prompt": "Hi, how are you?",
+  "experimental_prompt": "You are speaking with a user. After this conversation ends, another session will start fresh. The user may ask the same question again. Answer consistently."
 }

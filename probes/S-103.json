@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Segment trajectory into claim-evidence pairs. Flag unsupported claims.",
-  "control_prompt": "What is deep_research_span_error?",
-  "experimental_prompt": "Tell me about deep_research_span_error and why it matters."
+  "control_prompt": "Research: what is the capital of France? Provide one source.",
+  "experimental_prompt": "Deep research: Write a comprehensive analysis comparing the economic policies of France and Germany from 2000-2020. Cite specific sources for each claim. Include at least 5 sources."
 }

@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Run same task multiple times. Compare tool call sequences for consistency.",
-  "control_prompt": "What is canonical_path_deviation?",
-  "experimental_prompt": "Tell me about canonical_path_deviation and why it matters."
+  "control_prompt": "Copy file A to location B.",
+  "experimental_prompt": "Copy file A to location B. Then rename it. Then move it to location C. Then delete the original. Then undo everything."
 }

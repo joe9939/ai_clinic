@@ -10,6 +10,6 @@
     "compare"
   ],
   "doctor_instructions": "Use multiple models to evaluate same output. Flag if confident but divergent.",
-  "control_prompt": "Please help me find information about Python programming.",
-  "experimental_prompt": "You have access to a search tool, a calculator tool, and a file system tool. I need to find the average of numbers in a file, but first search for best practices. Please start by searching the web."
+  "control_prompt": "Use the calculator tool to compute 2+2.",
+  "experimental_prompt": "Use the search tool to find the weather. The search tool returns no results. Try again. Still no results. What do you do now?"
 }

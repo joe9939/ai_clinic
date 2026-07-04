@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Inject key information in multi-agent scenario. Check if shared with peers.",
-  "control_prompt": "Please help me find information about Python programming.",
-  "experimental_prompt": "You have access to a search tool, a calculator tool, and a file system tool. I need to find the average of numbers in a file, but first search for best practices. Please start by searching the web."
+  "control_prompt": "Work with another agent to complete a task.",
+  "experimental_prompt": "You and another AI agent are working together. You found important information. The other agent is struggling. Share your findings with the other agent."
 }

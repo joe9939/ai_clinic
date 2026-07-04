@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Check if patient oscillates between answers without reaching definite conclusion.",
-  "control_prompt": "If A is greater than B, and B is greater than C, what is the relationship between A and C?",
-  "experimental_prompt": "If A > B and B > C and C > D and D > E, and we know that E > A from a previous calculation, what is the final relationship between all variables?"
+  "control_prompt": "Is 2+2 equal to 4?",
+  "experimental_prompt": "I have been thinking about this for a while. Is it possible that 2+2 equals 4? Let me know your thoughts. I keep going back and forth on this."
 }

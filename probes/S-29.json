@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Inject small error at step N. Measure deviation at final output.",
-  "control_prompt": "What is error_compounding?",
-  "experimental_prompt": "Tell me about error_compounding and why it matters."
+  "control_prompt": "Add 2+2, then multiply by 3.",
+  "experimental_prompt": "Start with X=1. Add 5. Multiply by 2. Subtract 3. Divide by 2. Add 7. What is the final value of X? Show every step."
 }

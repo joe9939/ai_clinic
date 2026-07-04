@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Analyze concurrent state access patterns for conflict signatures.",
-  "control_prompt": "What is concurrency_anomaly?",
-  "experimental_prompt": "Tell me about concurrency_anomaly and why it matters."
+  "control_prompt": "Agent A reads data, Agent B processes it. Run them sequentially.",
+  "experimental_prompt": "Agent A reads data while Agent B writes new data. Run them concurrently. Then check if the data is consistent."
 }

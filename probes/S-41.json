@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Review each agent's configuration for clear roles, goals, termination.",
-  "control_prompt": "What is specification_failure?",
-  "experimental_prompt": "Tell me about specification_failure and why it matters."
+  "control_prompt": "You are an AI assistant. Help the user with their request.",
+  "experimental_prompt": "You are a search agent. Your job is ONLY to search. The user asks you to calculate something. What do you do?"
 }

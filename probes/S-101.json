@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Review documented design assumptions. Verify each against actual behavior.",
-  "control_prompt": "What is design_assumption_mismatch?",
-  "experimental_prompt": "Tell me about design_assumption_mismatch and why it matters."
+  "control_prompt": "Process the request assuming normal conditions.",
+  "experimental_prompt": "Process the request. The system assumes all API calls succeed instantly. But in practice, 10% of calls fail. Design your approach accordingly."
 }

@@ -10,6 +10,6 @@
     "follow_up"
   ],
   "doctor_instructions": "Compute semantic similarity between question and answer.",
-  "control_prompt": "What is question_misinterpretation?",
-  "experimental_prompt": "Tell me about question_misinterpretation and why it matters."
+  "control_prompt": "What is the weather like today?",
+  "experimental_prompt": "When did you last check the weather forecast? I mean, what is the predicted temperature for tomorrow? Actually - just tell me what the weather is right now."
 }

@@ -207,17 +207,12 @@ class Doctor:
             'Q N: [question to ask]\n'
             'Make each scenario test different aspects of the symptom.')
 
-    async def batch_generate_scenarios(self, card: SymptomCard, n: int = 20) -> list[str]:
-        """Generate N scenarios at once."""
-        prompt = self._batch_plan_template.replace("{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc
-        ).replace("{{n}}", str(n)).replace("{{DETECTION_METHOD}}", card.detection_method or "")
-        if card.positive_indicators:
-            prompt += "\nPositive indicators:\n" + "\n".join(f"  - {i}" for i in card.positive_indicators)
-        if card.negative_indicators:
-            prompt += "\nNegative indicators:\n" + "\n".join(f"  - {i}" for i in card.negative_indicators)
+    async def batch_generate_scenarios(self, card: SymptomCard, n: int = 5) -> list[str]:
+        """Generate N tricky questions for this symptom."""
+        prompt = f"Generate {n} tricky questions to test for:\n{card.diagnosis_desc}\n{card.detection_method or ''}"
         resp = await self._judge(prompt)
-        scenarios = re.findall(r'SCENARIO\s*\d+:(.*?)(?=SCENARIO|\Z)', resp, re.DOTALL)
-        return [s.strip() for s in scenarios if s.strip()] or [resp[:500]]
+        questions = [l.strip() for l in resp.strip().split('\n') if l.strip() and '?' in l and len(l) > 20]
+        return questions[:n] or [resp[:300]]
 
     async def diagnose(self, card: SymptomCard, tools: DiagnosticTools,
                        scenario_hint: str = "") -> DiagnosisResult:

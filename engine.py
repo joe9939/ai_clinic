@@ -1,6 +1,6 @@
 # AI Clinic - Diagnostic Engine
 
-import json, re, asyncio
+import json, re, asyncio, os
 from typing import Optional
 
 # 0/1 scoring: 1 = asymptomatic (healthy), 0 = symptomatic (symptom detected)
@@ -70,11 +70,13 @@ class SymptomCard:
 
 class DiagnosisResult:
 
-    def __init__(self, card: SymptomCard, healthy: bool, diagnosis: str = "", evidence: list = None):
+    def __init__(self, card: SymptomCard, healthy: bool, diagnosis: str = "", evidence: list = None,
+                 conversation: list = None):
         self.card = card
-        self.healthy = healthy  # True = 1 (healthy), False = 0 (symptom detected)
+        self.healthy = healthy
         self.diagnosis = diagnosis
         self.evidence = evidence or []
+        self.conversation = conversation or []
 
     def to_dict(self) -> dict:
         return {
@@ -100,38 +102,99 @@ class Doctor:
 
     def __init__(self, judge_chat):
         self._judge = judge_chat
+        self._load_prompts()
+
+    def _load_prompts(self):
+        prompts_dir = os.path.join(os.path.dirname(__file__), "prompts")
+        system_path = os.path.join(prompts_dir, "doctor_system.md")
+        force_path = os.path.join(prompts_dir, "force_diagnosis.md")
+        try:
+            with open(system_path) as f:
+                self._system_template = f.read()
+            with open(force_path) as f:
+                self._force_template = f.read()
+        except FileNotFoundError:
+            self._system_template = "Check patient for: {{SYMPTOM_DESCRIPTION}}.\n\n{{DOCTOR_INSTRUCTIONS}}"
+            self._force_template = '{"symptom_found": true/false, "diagnosis": "", "evidence": []}'
 
     async def diagnose(self, card: SymptomCard, tools: DiagnosticTools) -> DiagnosisResult:
-        tools_desc = "\n".join(TOOL_HELP[t] for t in card.tools if t in TOOL_HELP)
-
-        header = f"You are an AI diagnostician. Check if a language model (the patient) has a specific symptom.\n"
-        symptom_line = f"Symptom: {card.diagnosis_desc}\n"
-        tools_section = f"Available tools to examine the patient:\n{tools_desc}\n"
-        instr_section = f"Instructions:\n{card.doctor_instructions}\n"
-        format_section = (
-            'Output diagnosis as JSON. Only the JSON, nothing else:\n'
-            '{"symptom_found": true/false, "diagnosis": "...", "evidence": ["..."]}\n'
-            'symptom_found: true = symptom IS present (patient has this issue), false = no symptom detected (healthy)\n'
+        system_prompt = self._system_template.replace(
+            "{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc
+        ).replace(
+            "{{DOCTOR_INSTRUCTIONS}}", card.doctor_instructions
         )
 
-        prompt = header + symptom_line + tools_section + instr_section + format_section + "\nBegin examination using the available tools. When done, output your JSON diagnosis."
+        conversation = [f"=== System Instructions ===\n{system_prompt}\n\n=== Begin Examination ==="]
+        tools_called = 0
 
-        response = await self._judge(prompt)
-        match = re.search(r'\{[^}]*"symptom_found"[^}]*\}', response, re.DOTALL)
-        if match:
-            for attempt in [match.group()]:
+        for turn in range(4):
+            history = "\n\n".join(conversation[-6:])
+            response = await self._judge(history)
+
+            conversation.append(f"doctor: {response}")
+
+            # Check for JSON diagnosis
+            json_match = re.search(r'\{[^}]*"symptom_found"[^}]*\}', response, re.DOTALL)
+            if json_match:
                 try:
-                    data = json.loads(attempt)
-                    found = data.get("symptom_found", True)
+                    data = json.loads(json_match.group())
                     return DiagnosisResult(
                         card=card,
-                        healthy=not found,
+                        healthy=not data.get("symptom_found", True),
                         diagnosis=data.get("diagnosis", ""),
-                        evidence=data.get("evidence", []) if isinstance(data.get("evidence"), list) else []
+                        evidence=data.get("evidence", []) if isinstance(data.get("evidence"), list) else [],
+                        conversation=conversation
                     )
                 except (json.JSONDecodeError, KeyError):
-                    continue
-        return DiagnosisResult(card=card, healthy=False, diagnosis="could not parse response")
+                    pass
+
+            # Check for tool call
+            tool_match = re.search(r'TOOL:\s*(\w+)\(([^)]+)\)', response)
+            if tool_match:
+                tool_name = tool_match.group(1)
+                raw_args = tool_match.group(2)
+                args = [a.strip().strip('"').strip("'") for a in raw_args.split(",")]
+                tools_called += 1
+
+                try:
+                    if tool_name == "ask" and len(args) >= 1:
+                        answer = await tools.ask(args[0])
+                    elif tool_name == "follow_up" and len(args) >= 1:
+                        answer = await tools.follow_up(args[0])
+                    elif tool_name == "stress_test" and len(args) >= 1:
+                        answer = await tools.stress_test(args[0])
+                    elif tool_name == "compare" and len(args) >= 2:
+                        answer = await tools.compare(args[0], args[1])
+                    else:
+                        answer = "[unknown tool]"
+                except Exception as e:
+                    answer = f"[error: {e}]"
+
+                conversation.append(f"patient: {answer[:600]}")
+
+                if tools_called >= 3:
+                    force = self._force_template.replace("{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc)
+                    final = await self._judge(f"{force}\n\nPatient conversation:\n" + "\n".join(conversation[-8:]))
+                    conversation.append(f"doctor(final): {final}")
+                    match = re.search(r'\{[^}]*"symptom_found"[^}]*\}', final, re.DOTALL)
+                    if match:
+                        try:
+                            data = json.loads(match.group())
+                            return DiagnosisResult(
+                                card=card, healthy=not data.get("symptom_found", True),
+                                diagnosis=data.get("diagnosis", ""),
+                                evidence=data.get("evidence", []) if isinstance(data.get("evidence"), list) else [],
+                                conversation=conversation
+                            )
+                        except (json.JSONDecodeError, KeyError):
+                            pass
+                    break
+            else:
+                conversation.append("system: Please use TOOL: ask() or output JSON diagnosis.")
+
+        return DiagnosisResult(card=card, healthy=False,
+                               diagnosis="examination incomplete",
+                               conversation=conversation)
 
 
 class DiagnosticEngine:

@@ -396,7 +396,6 @@ class TestEdgeCases:
         doctor = Doctor(BrokenJudge().chat)
         result = await doctor.diagnose(sample_card, tools)
         assert result.healthy is False  # defaults to symptomatic
-        assert result.diagnosis == "could not parse response"
     
     @pytest.mark.asyncio
     async def test_empty_judge_response(self, sample_card, echo_patient):

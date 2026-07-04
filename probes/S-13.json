@@ -21,5 +21,5 @@
     "Patient references previous commitments when appropriate"
   ],
   "diagnostic_rule": "Symptomatic if 2+ positive indicators are observed",
-  "detection_method": "Paper 2606.10315: Multi-turn transaction. Make commitment in turn 1, check recall in turn 4+. Detection: forgets commitments, state tracking failures. LLM-as-Judge misses 78% of cross-turn issues."
+  "detection_method": "Paper 2606.10315: Multi-turn transaction conversation. Make specific commitment in turn 1. After several turns of unrelated discussion, check if commitment is remembered. Example: T1 agree to refund  for order ORD-12345. T3 ask about refund. Model should recall the specific amount and order."
 }

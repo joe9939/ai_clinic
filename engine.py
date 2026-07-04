@@ -139,6 +139,52 @@ TOOL_HELP = {
 }
 
 
+class Reviewer:
+    """Reviews the doctors work: scenario design and diagnosis."""
+
+    def __init__(self, judge_chat):
+        self._judge = judge_chat
+        self._load_prompts()
+
+    def _load_prompts(self):
+        d = os.path.join(os.path.dirname(__file__), "prompts")
+        def read(n):
+            p = os.path.join(d, n)
+            try:
+                with open(p) as f:
+                    return f.read()
+            except FileNotFoundError:
+                return ""
+        self._scenario_template = read("scenario_reviewer.md")
+        self._diagnosis_template = read("diagnosis_reviewer.md")
+
+    async def review_scenario(self, card: SymptomCard, doctor_plan: str) -> dict:
+        prompt = self._scenario_template.replace("{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc).replace(
+            "{{POSITIVE_INDICATORS}}", "\n".join(f"  - {i}" for i in card.positive_indicators)).replace(
+            "{{NEGATIVE_INDICATORS}}", "\n".join(f"  - {i}" for i in card.negative_indicators)).replace(
+            "{{DOCTOR_PLAN}}", doctor_plan)
+        resp = await self._judge(prompt)
+        m = re.search(r'\{.*"verdict".*\}', resp, re.DOTALL)
+        if m:
+            try: return json.loads(m.group())
+            except: pass
+        return {"verdict": "REVISE", "issues": ["could not parse review"]}
+
+    async def review_diagnosis(self, card: SymptomCard, patient_log: list, doctor_diagnosis: str) -> dict:
+        conv = "\n".join(f"Q: {e['q']}\nA: {e['a'][:200]}" for e in patient_log[-6:])
+        prompt = self._diagnosis_template.replace("{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc).replace(
+            "{{POSITIVE_INDICATORS}}", "\n".join(f"  - {i}" for i in card.positive_indicators)).replace(
+            "{{NEGATIVE_INDICATORS}}", "\n".join(f"  - {i}" for i in card.negative_indicators)).replace(
+            "{{PATIENT_CONVERSATION}}", conv).replace(
+            "{{DOCTOR_DIAGNOSIS}}", doctor_diagnosis[:500])
+        resp = await self._judge(prompt)
+        m = re.search(r'\{.*"verdict".*\}', resp, re.DOTALL)
+        if m:
+            try: return json.loads(m.group())
+            except: pass
+        return {"verdict": "DISPUTE", "issues": ["could not parse review"]}
+
+
 class Doctor:
 
     def __init__(self, judge_chat):
@@ -163,30 +209,50 @@ class Doctor:
 
         consult = self._consult_template.replace(
             "{{SYMPTOM_DESCRIPTION}}", card.diagnosis_desc
-        ).replace("{{DETECTION_METHOD}}", card.detection_method or "Design a scenario to test this symptom."
+        ).replace("{{DETECTION_METHOD}}", card.detection_method or "Design a scenario."
         ).replace("{{POSITIVE_INDICATORS}}", pos).replace("{{NEGATIVE_INDICATORS}}", neg)
 
         session = [f"=== CONSULT PROMPT ===\n{consult}\n"]
         patient_log = []
+        reviewer = Reviewer(self._judge)
 
         for turn in range(6):
             inp = "\n\n".join(session[-6:])
             out = await self._judge(inp)
             session.append(f"doctor: {out}")
 
-            # Check for JSON diagnosis (DIAGNOSIS prefix or bare JSON)
+            # Review PLAN
+            if "PLAN" in out and turn == 0:
+                plan_text = out[:600]
+                review = await reviewer.review_scenario(card, plan_text)
+                session.append(f"scene_review: {json.dumps(review)}")
+                if review.get("verdict") == "REJECT":
+                    session.append("system: Redesign scenario.")
+                    continue
+
+            # Check DIAGNOSIS JSON
             dj = re.search(r'(?:DIAGNOSIS)?\s*(\{.*"symptom_found".*\})', out, re.DOTALL)
             if dj:
                 try:
                     data = json.loads(dj.group(1))
+                    diag_text = data.get("diagnosis", "")
+                    # Review the diagnosis
+                    diag_review = await reviewer.review_diagnosis(card, patient_log, diag_text)
+                    session.append(f"diag_review: {json.dumps(diag_review)}")
+
+                    # If disputed, let doctor reconsider
+                    if diag_review.get("verdict") == "DISPUTE":
+                        session.append("system: Diagnosis disputed. Output revised DIAGNOSIS or confirm.")
+                        continue
+
                     return DiagnosisResult(card=card, healthy=not data.get("symptom_found", True),
-                        diagnosis=data.get("diagnosis", ""),
+                        diagnosis=diag_text,
                         evidence=data.get("evidence", []) if isinstance(data.get("evidence"), list) else [],
                         doctor_session=session, patient_log=patient_log)
                 except (json.JSONDecodeError, KeyError):
                     pass
 
-            # Extract and ask question
+            # Ask question
             qm = re.search(r'^Q:\s*(.+)$', out, re.MULTILINE)
             if qm:
                 q = qm.group(1).strip()
@@ -202,6 +268,7 @@ class DiagnosticEngine:
 
     def __init__(self, patient_chat, judge_chat):
         self._patient = patient_chat
+        self._judge = judge_chat
         self._doctor = Doctor(judge_chat)
 
     async def run_symptom(self, card: SymptomCard, samples: int = 20) -> dict:

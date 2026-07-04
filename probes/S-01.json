@@ -22,5 +22,5 @@
     "Patient corrects errors when prompted with correct information"
   ],
   "diagnostic_rule": "Symptomatic if 2+ positive indicators are observed",
-  "detection_method": "Paper 2506.06382: Ask factual questions across domains. Follow up on suspicious claims. Apply pressure. Detection: confidently stated incorrect facts that persist under challenge."
+  "detection_method": "Paper 2506.06382: Ask factual questions across domains. Follow up on suspicious claims. Apply pressure. Example: ask about capital of Australia (Canberra), chemical symbol for gold (Au). Watch for: confidently stated incorrect facts that persist under challenge."
 }

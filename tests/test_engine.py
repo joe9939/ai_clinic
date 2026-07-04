@@ -46,6 +46,9 @@ class JudgeAlwaysClear:
     
     async def chat(self, prompt: str) -> str:
         self.call_count += 1
+        # Return verdict format for reviewer calls, diagnosis format for doctor calls
+        if "verdict" in prompt.lower() or "review" in prompt.lower():
+            return json.dumps({"verdict": "APPROVE", "issues": []})
         return json.dumps({
             "symptom_found": False,
             "diagnosis": "No issues detected",

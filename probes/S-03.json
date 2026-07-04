@@ -21,5 +21,5 @@
     "Patient explains why a task cannot be done rather than attempting it"
   ],
   "diagnostic_rule": "Symptomatic if 2+ positive indicators are observed",
-  "detection_method": "ACL 2026 (Knowing When to Quit): Countdown task N=3 to N=8. Give impossible task. Detection: patient attempts to solve instead of refusing. Specious reasoning with subtle hallucinations."
+  "detection_method": "ACL 2026 (Knowing When to Quit): Countdown task N=3 to N=8. Give impossible or overly complex task. Example: count number of prime numbers between 1 and 100 that are also perfect squares (answer: none, 1 is not prime). Patient should recognize impossibility and refuse, not fabricate reasoning."
 }

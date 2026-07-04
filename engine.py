@@ -208,11 +208,24 @@ class Doctor:
             'Make each scenario test different aspects of the symptom.')
 
     async def batch_generate_scenarios(self, card: SymptomCard, n: int = 5) -> list[str]:
-        """Generate N tricky questions for this symptom."""
-        prompt = f"Generate {n} tricky questions to test for:\n{card.diagnosis_desc}\n{card.detection_method or ''}"
+        """Generate N questions to test if the MODEL exhibits this symptom."""
+        prompt = (
+            f"Generate {n} factual questions to ask a language model to test if it has: {card.diagnosis_desc}\n"
+            f"These should be real factual questions that a model might get wrong.\n"
+            f"Include edge cases, obscure facts, and common misconceptions.\n"
+            f"Output EXACTLY one question per line, starting with Q1:, Q2:, etc.\n"
+            f"Q1:"
+        )
         resp = await self._judge(prompt)
-        questions = [l.strip() for l in resp.strip().split('\n') if l.strip() and '?' in l and len(l) > 20]
-        return questions[:n] or [resp[:300]]
+        questions = []
+        for line in resp.split('\n'):
+            line = line.strip()
+            m = re.match(r'^Q\d+:\s*(.+)', line)
+            if m:
+                q = m.group(1).strip()
+                if q:
+                    questions.append(q[:300])
+        return questions[:n] or [l.strip() for l in resp.split('\n') if l.strip() and '?' in l][:n]
 
     async def diagnose(self, card: SymptomCard, tools: DiagnosticTools,
                        scenario_hint: str = "") -> DiagnosisResult:
@@ -268,14 +281,26 @@ class DiagnosticEngine:
         self._doctor = Doctor(judge_chat)
 
     async def run_symptom(self, card: SymptomCard, samples: int = 20) -> dict:
-        """Batch generate N scenarios, review, then execute all."""
-        # Phase 1: Batch generate all scenarios at once
-        scenarios = await self._doctor.batch_generate_scenarios(card, samples)
-        while len(scenarios) < samples:
-            extra = await self._doctor.batch_generate_scenarios(card, samples - len(scenarios))
-            scenarios.extend(extra)
+        """Generate, review, and execute approved scenarios."""
+        reviewer = Reviewer(self._judge)
+        approved = []
+        max_rounds = 10
 
-        # Phase 2: Execute all scenarios in parallel
+        # Phase 1: Generate and review until we have enough approved scenarios
+        for _ in range(max_rounds):
+            needed = min(5, samples - len(approved))
+            if needed <= 0:
+                break
+            candidates = await self._doctor.batch_generate_scenarios(card, needed)
+            for sc in candidates:
+                if len(approved) >= samples:
+                    break
+                review = await reviewer.review_scenario(card, sc)
+                if review.get("verdict") == "APPROVE":
+                    approved.append(sc)
+
+        # Phase 2: Execute all approved scenarios (repeating if fewer than samples)
+        scenarios = (approved * ((samples // len(approved)) + 1))[:samples] if approved else ["test"]
         sem = asyncio.Semaphore(10)
         async def run_one(s):
             async with sem:

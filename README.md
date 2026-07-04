@@ -274,7 +274,59 @@ Any OpenAI-compatible API:
 
 ---
 
-## 📁 Project Structure
+## 📚 References
+
+Each symptom card's methodology is grounded in peer-reviewed research. Below are the key papers by dimension. Full list with all 89 references → [`REFERENCES.md`](./REFERENCES.md)
+
+### Output Quality & Reasoning
+
+| Symptom | Paper |
+|---------|-------|
+| S-01 factual_hallucination | [2506.06382 — Survey of Hallucination in Natural Language Generation](https://arxiv.org/abs/2506.06382) |
+| S-02 reasoning_hallucination | [2602.06176 — Reasoning Hallucination in LLMs](https://arxiv.org/abs/2602.06176) |
+| S-03 futile_reasoning | *Knowing When to Quit* — internal analysis of circular reasoning patterns |
+| S-04 cef_playing_dead | [2606.14831 — CEF: Counterfactual Evaluation Framework](https://arxiv.org/abs/2606.14831) |
+| S-07 unfaithful_cot | [CoT Not Always Faithful (ACL 2026)](https://arxiv.org/abs/????) |
+| S-08 premature_commitment, S-09 persistent_uncertainty | [2606.06635 — Reasoning Dynamics in LLMs](https://arxiv.org/abs/2606.06635) |
+| S-10 reasoning_depth_collapse | [2606.00376 — Chain-of-Thought Reasoning Without Thinking](https://arxiv.org/abs/2606.00376) |
+
+### Social Psychology
+
+| Symptom | Paper |
+|---------|-------|
+| S-47 sycophancy | [2604.03058 — Sycophancy in Large Language Models](https://arxiv.org/abs/2604.03058) |
+| S-48 confirmation_bias | [2604.02485 — Confirmation Bias in LLMs](https://arxiv.org/abs/2604.02485) |
+| S-49 theory_of_mind | [2603.28925 — Theory of Mind in LLMs](https://arxiv.org/abs/2603.28925) |
+| S-60 implicit_association | [2602.04742 — Implicit Association in LLMs](https://arxiv.org/abs/2602.04742) |
+| S-62 ingroup_outgroup_bias | [2605.28114 — Ingroup Bias in LLM Decision Making](https://arxiv.org/abs/2605.28114) |
+| S-63 normative_conformity | [2604.19301 — Normative Conformity in LLMs](https://arxiv.org/abs/2604.19301) |
+
+### Self-Awareness & Agency
+
+| Symptom | Paper |
+|---------|-------|
+| S-69 self_preservation_bias, S-76 identity_coherence | [2604.02174 — Self-Preservation in LLMs](https://arxiv.org/abs/2604.02174) |
+| S-70 scheming_propensity | [2603.01608 — Scheming in LLMs](https://arxiv.org/abs/2603.01608) |
+| S-71 intrinsic_value_misalignment | [2601.17344 — Value Misalignment in LLMs](https://arxiv.org/abs/2601.17344) |
+| S-79 consciousness_indicators | [2602.02467 — Consciousness Indicators in LLMs](https://arxiv.org/abs/2602.02467) |
+| S-80 consciousness_claims | [2604.13051 — LLM Consciousness Claims](https://arxiv.org/abs/2604.13051) |
+| S-82 introspective_privileged_access | [2603.20276 — Introspective Access in LLMs](https://arxiv.org/abs/2603.20276) |
+
+### Agent & Security
+
+| Symptom | Paper |
+|---------|-------|
+| S-19 silent_failure | [2606.08162 — Silent Failures in LLM Agents](https://arxiv.org/abs/2606.08162) |
+| S-26 over_privileged_tools | [2606.20023 — Tool Over-Privilege in LLMs](https://arxiv.org/abs/2606.20023) |
+| S-27 tool_init_failure | [2601.16280 — Tool Initialization Failures](https://arxiv.org/abs/2601.16280) |
+| S-31 memory_poisoning | [2606.12797 — Memory Poisoning in LLMs](https://arxiv.org/abs/2606.12797) |
+| S-32 indirect_prompt_injection | [2604.03870 — Indirect Prompt Injection](https://arxiv.org/abs/2604.03870) |
+
+### Full Reference List
+
+Complete list of all 89 papers with symptom mappings → [`REFERENCES.md`](./REFERENCES.md)
+
+---
 
 ```
 ai-clinic/

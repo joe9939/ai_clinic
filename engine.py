@@ -235,19 +235,11 @@ class DiagnosticEngine:
         rate = healthy_count / samples
         lo, hi = wilson_ci(samples, healthy_count)
 
-        # Decision based on whether CI excludes 50%
-        if lo > 0.5:
-            final_healthy = True
-            certainty = "high"
-        elif hi < 0.5:
-            final_healthy = False
-            certainty = "high"
-        elif rate >= 0.5:
-            final_healthy = True
-            certainty = "low"
-        else:
-            final_healthy = False
-            certainty = "low"
+        # Medical diagnosis style: point estimate vs fixed threshold (50%)
+        threshold = 0.5
+        final_healthy = rate >= threshold
+        # Certainty: does CI cross the threshold?
+        certainty = "high" if (lo > threshold or hi < threshold) else "low"
 
         majority = [r for r in results if r.healthy == (final_healthy if final_healthy is not None else True)]
         if not majority:
@@ -292,15 +284,19 @@ class DiagnosticEngine:
             dim_summary[d] = pct
 
         all_vals = [1 if r.healthy else 0 for r in results]
-        overall = round(sum(all_vals) / len(all_vals) * 100, 1) if all_vals else 0
+        total = len(all_vals)
+        healthy = sum(all_vals)
+        overall_pct = round(healthy / total * 100, 1) if total else 0
+        lo, hi = wilson_ci(total, healthy)
+        ci = [round(lo * 100, 1), round(hi * 100, 1)]
         findings = [r.to_dict() for r in results if not r.healthy]
 
         return {
-            "overall": overall,
+            "overall": {"score": overall_pct, "ci_95": ci, "label": f"{healthy}/{total} asymptomatic"},
             "dimensions": dim_summary,
             "findings": findings,
-            "total_symptoms": len(cards),
-            "asymptomatic": sum(1 for r in results if r.healthy),
-            "symptomatic": sum(1 for r in results if not r.healthy),
+            "total_symptoms": total,
+            "asymptomatic": healthy,
+            "symptomatic": total - healthy,
             "samples_per_symptom": samples
         }

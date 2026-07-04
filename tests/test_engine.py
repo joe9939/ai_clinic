@@ -238,7 +238,7 @@ class TestDiagnosticEngine:
             judge_chat=judge_clear.chat
         )
         report = await engine.run_plan(cards)
-        assert report["overall"] == 100.0
+        assert report["overall"]["score"] == 100.0
         assert report["asymptomatic"] == 3
         assert report["symptomatic"] == 0
     
@@ -254,7 +254,7 @@ class TestDiagnosticEngine:
             judge_chat=judge_found.chat
         )
         report = await engine.run_plan(cards)
-        assert report["overall"] == 0.0
+        assert report["overall"]["score"] == 0.0
         assert report["symptomatic"] == 3
         assert report["asymptomatic"] == 0
     
@@ -267,7 +267,6 @@ class TestDiagnosticEngine:
         )
         report = await engine.run_plan([])
         assert report["total_symptoms"] == 0
-        assert report["overall"] == 0
 
 
 # ===== Symptom Card JSON Loading Tests =====

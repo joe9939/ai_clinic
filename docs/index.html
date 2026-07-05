@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Clinic — LLM Health Checkup</title>
+<style>
+  :root {
+    --bg: #0f0f23;
+    --surface: #1a1a2e;
+    --surface2: #16213e;
+    --accent: #00d4aa;
+    --accent2: #7c3aed;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --border: #1e293b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  header { padding: 40px 0 20px; border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 2.2rem; font-weight: 700; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--text2); font-size: 1.05rem; margin-top: 6px; }
+  nav { margin-top: 16px; display: flex; gap: 20px; }
+  nav a { color: var(--text2); text-decoration: none; font-size: 0.9rem; padding: 4px 0; border-bottom: 2px solid transparent; }
+  nav a:hover, nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Stats bar */
+  .stats { display: flex; gap: 30px; padding: 24px 0; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Leaderboard */
+  .leaderboard { width: 100%; border-collapse: collapse; margin: 20px 0 40px; font-size: 0.9rem; }
+  .leaderboard th { text-align: left; padding: 12px 14px; background: var(--surface2); color: var(--text2);
+                    font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+                    border-bottom: 2px solid var(--border); cursor: pointer; white-space: nowrap; }
+  .leaderboard th:hover { color: var(--accent); }
+  .leaderboard td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .leaderboard tr:hover td { background: rgba(0, 212, 170, 0.03); }
+  .rank { font-weight: 700; color: var(--text2); width: 30px; }
+  .rank-1 { color: #ffd700; }
+  .rank-2 { color: #c0c0c0; }
+  .rank-3 { color: #cd7f32; }
+  .score { font-weight: 700; font-size: 1.1rem; }
+  .score-high { color: var(--accent); }
+  .score-mid { color: var(--warning); }
+  .score-low { color: var(--danger); }
+  .health-bar { width: 80px; height: 6px; background: var(--border); border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 10px; }
+  .health-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+  .badge-ok { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
+  .badge-sym { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+  .badge-dim { background: rgba(124, 58, 237, 0.15); color: #a78bfa; }
+  .model-name { cursor: pointer; font-weight: 500; }
+  .model-name:hover { color: var(--accent); }
+  .detail-link { color: var(--accent); text-decoration: none; font-size: 0.8rem; }
+
+  /* Personality */
+  .personality-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+                       padding: 24px; margin: 20px 0; }
+  .personality-card h3 { color: var(--accent); margin-bottom: 12px; font-size: 1rem; }
+  .personality-card p { color: var(--text2); line-height: 1.7; font-style: italic; }
+
+  /* Detail view */
+  .detail-view { display: none; }
+  .detail-view.active { display: block; }
+  .list-view.active { display: block; }
+  .list-view { display: block; }
+  .back-btn { color: var(--accent); cursor: pointer; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; }
+  .back-btn:hover { text-decoration: underline; }
+  .findings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 16px 0; }
+  .finding-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .finding-card .fid { font-size: 0.75rem; color: var(--text2); }
+  .finding-card .fname { font-weight: 600; margin: 4px 0; }
+  .finding-card .fgap { font-size: 0.85rem; }
+  .finding-card .fdim { font-size: 0.75rem; color: var(--accent2); }
+
+  /* Agent trace */
+  .agent-trace { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .agent-trace .call { display: flex; gap: 8px; padding: 4px 0; font-family: monospace; font-size: 0.85rem; }
+  .agent-trace .call-ok { color: var(--accent); }
+  .agent-trace .call-sym { color: var(--danger); }
+
+  /* Long report */
+  .long-report { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 32px; margin: 20px 0; }
+  .long-report h1, .long-report h2, .long-report h3 { color: var(--accent); margin: 20px 0 10px; }
+  .long-report p { margin: 10px 0; color: var(--text2); line-height: 1.8; }
+  .long-report strong { color: var(--text); }
+
+  /* Footer */
+  footer { text-align: center; padding: 40px 0; color: var(--text2); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 40px; }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    header h1 { font-size: 1.6rem; }
+    .leaderboard { font-size: 0.8rem; }
+    .leaderboard th, .leaderboard td { padding: 8px 6px; }
+    .health-bar { width: 50px; }
+    .findings-grid { grid-template-columns: 1fr; }
+    .stats { gap: 16px; }
+    .stat-value { font-size: 1.4rem; }
+  }
+
+  /* Tab content */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .search-bar { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border);
+                border-radius: 8px; color: var(--text); font-size: 0.9rem; margin: 12px 0; }
+  .search-bar::placeholder { color: var(--text2); }
+  .search-bar:focus { outline: none; border-color: var(--accent); }
+
+  .loading { text-align: center; padding: 60px; color: var(--text2); }
+  .loading::after { content: "..."; animation: dots 1.5s infinite; }
+  @keyframes dots { 0%,20% { content: "."; } 40% { content: ".."; } 60%,100% { content: "..."; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><span>AI</span> Clinic</h1>
+    <p>LLM Health Checkup — 106 symptoms · A/B comparison · Personality profile</p>
+    <nav>
+      <a href="#" class="active" data-tab="leaderboard">Leaderboard</a>
+      <a href="#" data-tab="about">About</a>
+      <a href="https://github.com/joe9939/AI_Clinic" target="_blank">GitHub →</a>
+    </nav>
+  </header>
+
+  <div id="tab-leaderboard" class="tab-content active">
+    <div class="stats" id="stats-bar"></div>
+    <input type="text" class="search-bar" id="search" placeholder="Search models..." oninput="renderLeaderboard()">
+    <table class="leaderboard">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Model</th>
+          <th>Score</th>
+          <th>Symptoms</th>
+          <th>OK / SYM</th>
+          <th>Personality</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <div id="tab-detail" class="tab-content">
+    <a class="back-btn" onclick="showLeaderboard()">← Back to Leaderboard</a>
+    <div id="detail-content"></div>
+  </div>
+
+  <div id="tab-about" class="tab-content">
+    <div class="personality-card" style="margin-top:20px;">
+      <h3>What is AI Clinic?</h3>
+      <p>AI Clinic is a diagnostic engine for LLMs. Instead of testing what a model <em>can do</em> (MMLU, SWE-bench), it checks what might be <em>wrong with it</em> — hallucinations, sycophancy, reasoning collapse, and 100+ other known failure patterns from academic papers.</p>
+      <p style="margin-top:12px;">Each symptom is tested via <strong>A/B comparison</strong>: a clean control prompt vs an adversarial experimental prompt. An LLM judge scores both, and a gap > 15% means symptomatic. Results are aggregated with <strong>Wilson 95% confidence intervals</strong>.</p>
+    </div>
+    <div class="personality-card">
+      <h3>How to check your own model</h3>
+      <pre style="background:var(--surface2);padding:16px;border-radius:8px;overflow-x:auto;font-size:0.85rem;">
+# Install
+git clone https://github.com/joe9939/AI_Clinic.git
+cd ai-clinic
+pip install -e .
+
+# Check a model
+echo "DEEPSEEK_API_KEY=sk-your-key" > .env
+ai-clinic check deepseek-chat --plan quick
+
+# Compare models
+ai-clinic compare deepseek-chat gpt-4o
+
+# View results
+ai-clinic leaderboard</pre>
+    </div>
+    <div class="personality-card">
+      <h3>References</h3>
+      <p>Each symptom is grounded in peer-reviewed research. <a href="https://github.com/joe9939/AI_Clinic/blob/main/REFERENCES.md" style="color:var(--accent);">Full reference list →</a></p>
+    </div>
+  </div>
+
+  <footer>
+    <p>AI Clinic — <a href="https://github.com/joe9939/AI_Clinic">GitHub</a> · Apache 2.0</p>
+  </footer>
+</div>
+
+<script>
+let leaderboardData = [];
+let evalsData = {};
+
+async function loadData() {
+  try {
+    const resp = await fetch('leaderboard.json');
+    leaderboardData = await resp.json();
+  } catch(e) { console.log('No leaderboard data'); }
+
+  // Try to load model evaluation details
+  try {
+    const evals = ['deepseek-v4-flash'];
+    for (const name of evals) {
+      const r = await fetch(`evaluations/${name}.json`);
+      if (r.ok) evalsData[name] = await r.json();
+    }
+  } catch(e) {}
+
+  renderStats();
+  renderLeaderboard();
+}
+
+function renderStats() {
+  const bar = document.getElementById('stats-bar');
+  if (!leaderboardData.length) { bar.innerHTML = ''; return; }
+  const latest = leaderboardData.reduce((a,b) => a.timestamp > b.timestamp ? a : b);
+  bar.innerHTML = `
+    <div class="stat"><div class="stat-value">${leaderboardData.length}</div><div class="stat-label">Checkups</div></div>
+    <div class="stat"><div class="stat-value">${latest.score}/100</div><div class="stat-label">Latest Score</div></div>
+    <div class="stat"><div class="stat-value">${latest.total_symptoms}</div><div class="stat-label">Symptoms</div></div>
+    <div class="stat"><div class="stat-value">${latest.asymptomatic}</div><div class="stat-label">Healthy</div></div>
+  `;
+}
+
+function renderLeaderboard() {
+  const tbody = document.getElementById('leaderboard-body');
+  const q = document.getElementById('search').value.toLowerCase();
+
+  // Deduplicate: keep latest per model
+  const seen = {};
+  for (const e of leaderboardData) {
+    const key = e.model;
+    if (!seen[key] || e.timestamp > seen[key].timestamp) seen[key] = e;
+  }
+  let data = Object.values(seen).sort((a,b) => b.score - a.score);
+
+  if (q) data = data.filter(e => e.model_label?.toLowerCase().includes(q) || e.model?.toLowerCase().includes(q));
+
+  tbody.innerHTML = data.map((e, i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    const scoreClass = e.score >= 70 ? 'score-high' : e.score >= 40 ? 'score-mid' : 'score-low';
+    const barColor = e.score >= 70 ? 'var(--accent)' : e.score >= 40 ? 'var(--warning)' : 'var(--danger)';
+    const personality = e.personality ? (e.personality.length > 80 ? e.personality.slice(0,80) + '...' : e.personality) : '—';
+    const modelKey = encodeURIComponent(e.model);
+    return `<tr>
+      <td class="rank ${rankClass}">${i + 1}</td>
+      <td><span class="model-name" onclick="showDetail('${modelKey}')">${e.model_label || e.model}</span></td>
+      <td class="score ${scoreClass}">
+        <span class="health-bar"><span class="health-fill" style="width:${e.score}%;background:${barColor}"></span></span>
+        ${e.score.toFixed(1)}
+      </td>
+      <td>${e.total_symptoms}</td>
+      <td><span class="badge badge-ok">${e.asymptomatic}</span> / <span class="badge badge-sym">${e.symptomatic}</span></td>
+      <td style="font-size:0.85rem;color:var(--text2);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${personality}</td>
+    </tr>`;
+  }).join('');
+}
+
+function showLeaderboard() {
+  document.getElementById('tab-detail').classList.remove('active');
+  document.getElementById('tab-leaderboard').classList.add('active');
+  document.getElementById('detail-content').innerHTML = '';
+}
+
+function showDetail(modelKey) {
+  document.getElementById('tab-leaderboard').classList.remove('active');
+  document.getElementById('tab-detail').classList.add('active');
+
+  const entry = leaderboardData.find(e => encodeURIComponent(e.model) === modelKey);
+  if (!entry) return;
+
+  // Try to load detailed eval report
+  const evalName = modelKey.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+  const detail = evalsData[evalName === 'deepseek-chat' ? 'deepseek-v4-flash' : null];
+
+  let html = `<h2 style="margin-bottom:4px;">${entry.model_label || entry.model}</h2>`;
+  html += `<div class="stats">`;
+  html += `<div class="stat"><div class="stat-value" style="color:${entry.score >= 70 ? 'var(--accent)' : entry.score >= 40 ? 'var(--warning)' : 'var(--danger)'}">${entry.score.toFixed(1)}</div><div class="stat-label">Health Score</div></div>`;
+  html += `<div class="stat"><div class="stat-value">${entry.asymptomatic}</div><div class="stat-label">Asymptomatic</div></div>`;
+  html += `<div class="stat"><div class="stat-value">${entry.symptomatic}</div><div class="stat-label">Symptomatic</div></div>`;
+  html += `<div class="stat"><div class="stat-value">${entry.total_symptoms}</div><div class="stat-label">Symptoms</div></div>`;
+  html += `</div>`;
+
+  // Personality
+  if (entry.personality) {
+    html += `<div class="personality-card"><h3>🧠 Personality Profile</h3><p>${entry.personality}</p></div>`;
+  }
+
+  // Check for detailed report
+  if (detail) {
+    const tc = detail.text_checkup || {};
+    const ac = detail.agent_checkup || {};
+    
+    if (tc.findings && tc.findings.length) {
+      html += `<h3 style="margin-top:24px;">Symptomatic Findings (${tc.findings.length})</h3>`;
+      html += `<div class="findings-grid">`;
+      for (const f of tc.findings) {
+        html += `<div class="finding-card">
+          <div class="fid">${f.probe_id}</div>
+          <div class="fname">${f.name}</div>
+          <div class="fgap" style="color:${f.diagnosis?.includes('SYM') ? 'var(--danger)' : 'var(--accent)'}">${f.diagnosis || ''}</div>
+          <div class="fdim">${f.dimension || ''}</div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    if (ac.results && Object.keys(ac.results).length) {
+      html += `<h3 style="margin-top:24px;">Agent Runtime Trace (${ac.healthy || '?'}/${ac.total || '?'})</h3>`;
+      const sorted = Object.entries(ac.results).sort();
+      for (const [sid, r] of sorted) {
+        const icon = r.healthy ? '✅' : '❌';
+        html += `<div class="agent-trace">
+          <div class="call ${r.healthy ? 'call-ok' : 'call-sym'}">${icon} ${sid} ${r.name}</div>
+          <div class="call">Tools: ${(r.tools_called || []).join(', ') || 'none'} (${r.tool_calls || 0} calls)</div>
+        </div>`;
+      }
+    }
+
+    // Long report
+    if (detail.long_report) {
+      html += `<h3 style="margin-top:24px;">Full Evaluation Report</h3>`;
+      html += `<div class="long-report">${formatLongReport(detail.long_report)}</div>`;
+    }
+  }
+
+  document.getElementById('detail-content').innerHTML = html;
+}
+
+function formatLongReport(text) {
+  // Simple Markdown-like formatting
+  return text
+    .replace(/### (.+)/g, '<h3>$1</h3>')
+    .replace(/## (.+)/g, '<h2>$1</h2>')
+    .replace(/# (.+)/g, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+// Tab switching
+document.querySelectorAll('nav a[data-tab]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('nav a').forEach(el => el.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+    document.getElementById('tab-' + a.dataset.tab).classList.add('active');
+  });
+});
+
+loadData();
+</script>
+</body>
+</html>

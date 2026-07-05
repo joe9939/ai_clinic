@@ -76,6 +76,9 @@
   .score-cell { font-weight:700; font-size:1rem; white-space:nowrap; }
   .score-bar { display:inline-block; width:80px; height:5px; background:var(--border); border-radius:3px; margin-right:10px; vertical-align:middle; }
   .score-fill { height:100%; border-radius:3px; transition:width .3s; }
+  .sf-high { background:var(--accent); }
+  .sf-mid { background:var(--warning); }
+  .sf-low { background:var(--danger); }
   .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.7rem; font-weight:600; }
   .badge-ok { background:var(--accent-dim); color:var(--accent); }
   .badge-sym { background:var(--danger-dim); color:var(--danger); }
@@ -263,13 +266,13 @@ function renderLeaderboard() {
   tbody.innerHTML = data.map((e,i) => {
     const rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
     const sc = e.score>=70?'high':e.score>=40?'mid':'low';
-    const barColor = sc==='high'?'var(--accent)':sc==='mid'?'var(--warning)':'var(--danger)';
+    const scColor = sc==='high'?'var(--accent)':sc==='mid'?'var(--warning)':'var(--danger)';
     const p = e.personality ? (e.personality.length>80?e.personality.slice(0,80)+'…':e.personality) : '—';
     return `<tr>
       <td class="rank ${rc}">${i+1}</td>
       <td><span class="model-cell" onclick="showDetail('${encodeURIComponent(e.model)}')">${e.model_label||e.model}</span></td>
-      <td class="score-cell" style="color:${barColor}">
-        <span class="score-bar"><span class="score-fill" style="width:${e.score}%;background:${barColor}"></span></span>
+      <td class="score-cell" style="color:${scColor}">
+        <span class="score-bar"><span class="score-fill sf-${sc}" style="width:${e.score}%"></span></span>
         ${e.score.toFixed(1)}
       </td>
       <td>${e.total_symptoms}</td>

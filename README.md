@@ -7,8 +7,9 @@
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/github/license/joe9939/ai_clinic?color=yellow" alt="license">
   <img src="https://img.shields.io/badge/symptoms-106-success" alt="symptoms">
-  <img src="https://img.shields.io/badge/tests-49%20passed-green" alt="tests">
+  <img src="https://img.shields.io/badge/tests-85%20passed-green" alt="tests">
   <img src="https://img.shields.io/badge/CLI-ready-orange" alt="cli">
+  <img src="https://img.shields.io/badge/website-online-brightgreen" alt="website">
 </p>
 
 <p align="center">
@@ -20,6 +21,7 @@
 </p>
 
 <p align="center">
+  🌐 <a href="https://joe9939.github.io/AI_Clinic/"><strong>Live Leaderboard →</strong></a> &nbsp;|&nbsp;
   <a href="#-quick-start">Quick Start</a> •
   <a href="#cli">CLI</a> •
   <a href="#-what-it-detects">Symptoms</a> •

@@ -122,15 +122,26 @@
   .loading { text-align: center; padding: 60px; color: var(--text2); }
   .loading::after { content: "..."; animation: dots 1.5s infinite; }
   @keyframes dots { 0%,20% { content: "."; } 40% { content: ".."; } 60%,100% { content: "..."; } }
+  .personality-expand { cursor:pointer;color:var(--accent);font-size:0.8rem;margin-left:4px; }
+  .personality-expand:hover { text-decoration:underline; }
+  .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center; }
+  .modal-overlay.active { display:flex; }
+  .modal-box { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto; }
+  .modal-box h3 { color:var(--accent);margin-bottom:12px; }
+  .modal-box p { color:var(--text2);line-height:1.7; }
+  .modal-close { float:right;cursor:pointer;color:var(--text2);font-size:1.2rem; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <header>
-    <h1><span>AI</span> Clinic</h1>
-    <p>LLM Health Checkup — 106 symptoms · A/B comparison · Personality profile</p>
-    <nav>
+  <header style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+    <img src="logo.svg" alt="AI Clinic" style="height:60px;flex-shrink:0;">
+    <div>
+      <h1 style="margin:0;">AI Clinic</h1>
+      <p style="margin:4px 0 0;">LLM Health Checkup — 106 symptoms · A/B comparison · Personality profile</p>
+    </div>
+    <nav style="width:100%;">
       <a href="#" class="active" data-tab="leaderboard">Leaderboard</a>
       <a href="#" data-tab="about">About</a>
       <a href="https://github.com/joe9939/AI_Clinic" target="_blank">GitHub →</a>
@@ -187,6 +198,15 @@ ai-clinic leaderboard</pre>
     <div class="personality-card">
       <h3>References</h3>
       <p>Each symptom is grounded in peer-reviewed research. <a href="https://github.com/joe9939/AI_Clinic/blob/main/REFERENCES.md" style="color:var(--accent);">Full reference list →</a></p>
+    </div>
+  </div>
+
+  <!-- Personality expand modal -->
+  <div class="modal-overlay" id="personality-modal" onclick="closeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h3 id="modal-title">Personality Profile</h3>
+      <p id="modal-content"></p>
     </div>
   </div>
 
@@ -259,7 +279,7 @@ function renderLeaderboard() {
       </td>
       <td>${e.total_symptoms}</td>
       <td><span class="badge badge-ok">${e.asymptomatic}</span> / <span class="badge badge-sym">${e.symptomatic}</span></td>
-      <td style="font-size:0.85rem;color:var(--text2);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${personality}</td>
+      <td style="font-size:0.85rem;color:var(--text2);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;" onclick="event.stopPropagation();expandPersonality(this,'${e.model_label?.replace(/'/g,"\\'")}')" title="Click to expand">${personality}</td>
     </tr>`;
   }).join('');
 }
@@ -356,6 +376,20 @@ document.querySelectorAll('nav a[data-tab]').forEach(a => {
     document.getElementById('tab-' + a.dataset.tab).classList.add('active');
   });
 });
+
+function expandPersonality(el, modelName) {
+  // Find the full personality text from leaderboard data
+  const entry = leaderboardData.find(e => (e.model_label || e.model) === modelName);
+  if (entry && entry.personality) {
+    document.getElementById('modal-title').textContent = modelName + ' — Personality';
+    document.getElementById('modal-content').textContent = entry.personality.replace(/\*\*/g, '');
+    document.getElementById('personality-modal').classList.add('active');
+  }
+}
+function closeModal() {
+  document.getElementById('personality-modal').classList.remove('active');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 loadData();
 </script>

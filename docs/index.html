@@ -204,11 +204,11 @@ let evalsData = {};
 
 async function loadData() {
   try {
-    const r = await fetch('leaderboard.json');
+    const r = await fetch('leaderboard.json?_=' + Date.now());
     leaderboardData = await r.json();
   } catch(e) {}
   try {
-    const r = await fetch('evaluations/deepseek-v4-flash.json');
+    const r = await fetch('evaluations/deepseek-v4-flash.json?_=' + Date.now());
     if (r.ok) evalsData['deepseek-chat'] = await r.json();
   } catch(e) {}
   renderFeatured();

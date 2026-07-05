@@ -82,6 +82,8 @@
   .personality-cell { max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
                        color:var(--text2); font-size:0.8rem; cursor:pointer; }
   .personality-cell:hover { color:var(--accent); }
+  .read-more { color:var(--accent); cursor:pointer; font-size:0.85rem; }
+  .read-more:hover { text-decoration:underline; }
 
   /* Detail View */
   .back-btn { color:var(--accent); cursor:pointer; font-size:0.85rem; margin:16px 0; display:inline-block; }
@@ -231,7 +233,7 @@ function renderFeatured() {
           <span>${latest.samples || '-'} samples each</span>
           ${latest.agent_score ? `<span>🤖 Agent: ${latest.agent_score}%</span>` : ''}
         </div>
-        ${latest.personality ? `<p style="color:var(--text2);font-style:italic;margin-top:8px;font-size:0.85rem;">${latest.personality.slice(0,120)}… <span style="color:var(--accent);cursor:pointer;" onclick="openModal('${encodeURIComponent(latest.model)}')">read more</span></p>` : ''}
+        ${latest.personality ? `<p style="color:var(--text2);font-style:italic;margin-top:8px;font-size:0.85rem;">${latest.personality.slice(0,120)}… <span class="read-more" data-model="${latest.model}">read more</span></p>` : ''}
       </div>
       <div class="featured-stats">
         <div class="item"><div class="val">${leaderboardData.length}</div><div class="lbl">Checkups</div></div>
@@ -265,7 +267,7 @@ function renderLeaderboard() {
       </td>
       <td>${e.total_symptoms}</td>
       <td><span class="badge badge-ok">${e.asymptomatic}</span> <span class="badge badge-sym">${e.symptomatic}</span></td>
-      <td class="personality-cell" onclick="openModal('${encodeURIComponent(e.model)}')" title="Click to read full personality">${p}</td>
+      <td class="personality-cell" data-model="${e.model}" title="Click to read full personality">${p}</td>
     </tr>`;
   }).join('');
 }
@@ -331,9 +333,8 @@ function showDetail(modelKey) {
   document.getElementById('detail-content').innerHTML = html;
 }
 
-function openModal(modelKey) {
-  const decoded = decodeURIComponent(modelKey);
-  const entry = leaderboardData.find(e => e.model === decoded);
+function openModal(model) {
+  const entry = leaderboardData.find(e => e.model === model);
   if (entry && entry.personality) {
     document.getElementById('modal-title').textContent = (entry.model_label || entry.model) + ' — Personality';
     document.getElementById('modal-content').textContent = entry.personality.replace(/\*\*/g, '');
@@ -342,6 +343,14 @@ function openModal(modelKey) {
 }
 function closeModal() { document.getElementById('personality-modal').classList.remove('active'); }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// Event delegation: handle clicks on read-more and personality-cell
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('.read-more, .personality-cell');
+  if (target && target.dataset.model) {
+    openModal(target.dataset.model);
+  }
+});
 
 // Tab switching
 document.querySelectorAll('.tab-link').forEach(a=>{

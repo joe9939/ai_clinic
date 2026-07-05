@@ -223,6 +223,9 @@ function renderFeatured() {
       <div class="featured-score">
         <div class="big ${scoreClass}">${latest.score.toFixed(1)}</div>
         <div class="ci">95%CI: ${latest.ci_95?.[0] ?? '-'}-${latest.ci_95?.[1] ?? '-'}</div>
+        <div style="width:100px;height:5px;background:var(--border);border-radius:3px;margin:8px auto;">
+          <div style="width:${latest.score}%;height:100%;border-radius:3px;background:${latest.score>=70?'var(--accent)':latest.score>=40?'var(--warning)':'var(--danger)'};"></div>
+        </div>
         <div class="label">Health Score</div>
       </div>
       <div class="featured-info">

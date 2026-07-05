@@ -319,6 +319,12 @@ function showDetail(modelKey) {
     const tc = detail.text_checkup || {};
     const ac = detail.agent_checkup || {};
     
+    // Long report FIRST (above findings)
+    if (detail.long_report) {
+      html += `<h3 style="margin-top:24px;">Full Evaluation Report</h3>`;
+      html += `<div class="long-report">${formatLongReport(detail.long_report)}</div>`;
+    }
+
     if (tc.findings && tc.findings.length) {
       html += `<h3 style="margin-top:24px;">Symptomatic Findings (${tc.findings.length})</h3>`;
       html += `<div class="findings-grid">`;
@@ -343,12 +349,6 @@ function showDetail(modelKey) {
           <div class="call">Tools: ${(r.tools_called || []).join(', ') || 'none'} (${r.tool_calls || 0} calls)</div>
         </div>`;
       }
-    }
-
-    // Long report
-    if (detail.long_report) {
-      html += `<h3 style="margin-top:24px;">Full Evaluation Report</h3>`;
-      html += `<div class="long-report">${formatLongReport(detail.long_report)}</div>`;
     }
   }
 

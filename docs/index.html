@@ -215,7 +215,12 @@ async function loadData() {
 function renderFeatured() {
   const el = document.getElementById('featured-model');
   if (!leaderboardData.length) { el.innerHTML = ''; return; }
-  const latest = leaderboardData.reduce((a,b) => a.timestamp > b.timestamp ? a : b);
+  // Show the entry with most symptoms (most comprehensive), tie-break by highest score
+  const latest = leaderboardData.reduce((a,b) => {
+    const aScore = (a.total_symptoms || 0) * 1000 + (a.score || 0);
+    const bScore = (b.total_symptoms || 0) * 1000 + (b.score || 0);
+    return aScore > bScore ? a : b;
+  });
   const scoreClass = latest.score >= 70 ? 'high' : latest.score >= 40 ? 'mid' : 'low';
   el.innerHTML = `
     <div class="featured">

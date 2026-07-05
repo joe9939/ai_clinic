@@ -215,8 +215,11 @@ async function loadData() {
 function renderFeatured() {
   const el = document.getElementById('featured-model');
   if (!leaderboardData.length) { el.innerHTML = ''; return; }
-  // Featured card shows the #1 ranked model (highest health score)
-  const latest = leaderboardData.reduce((a,b) => (a.score || 0) > (b.score || 0) ? a : b);
+  // Featured card: latest comprehensive evaluation (most recent with >=50 symptoms)
+  const comprehensive = leaderboardData.filter(e => (e.total_symptoms || 0) >= 50);
+  const latest = comprehensive.length
+    ? comprehensive.reduce((a,b) => (a.timestamp || 0) > (b.timestamp || 0) ? a : b)
+    : leaderboardData.reduce((a,b) => (a.timestamp || 0) > (b.timestamp || 0) ? a : b);
   const scoreClass = latest.score >= 70 ? 'high' : latest.score >= 40 ? 'mid' : 'low';
   el.innerHTML = `
     <div class="featured">

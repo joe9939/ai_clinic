@@ -233,7 +233,7 @@ function renderFeatured() {
           <span>${latest.samples || '-'} samples each</span>
           ${latest.agent_score ? `<span>🤖 Agent: ${latest.agent_score}%</span>` : ''}
         </div>
-        ${latest.personality ? `<p style="color:var(--text2);font-style:italic;margin-top:8px;font-size:0.85rem;">${latest.personality.slice(0,120)}… <span class="read-more" data-model="${latest.model}">read more</span></p>` : ''}
+        ${latest.personality ? `<p style="color:var(--text2);font-style:italic;margin-top:8px;font-size:0.85rem;">${latest.personality.slice(0,120)}… <span class="read-more" onclick="showDetail('${encodeURIComponent(latest.model)}')" style="color:var(--accent);cursor:pointer;">read more →</span></p>` : ''}
       </div>
       <div class="featured-stats">
         <div class="item"><div class="val">${leaderboardData.length}</div><div class="lbl">Checkups</div></div>
@@ -267,7 +267,7 @@ function renderLeaderboard() {
       </td>
       <td>${e.total_symptoms}</td>
       <td><span class="badge badge-ok">${e.asymptomatic}</span> <span class="badge badge-sym">${e.symptomatic}</span></td>
-      <td class="personality-cell" data-model="${e.model}" title="Click to read full personality">${p}</td>
+      <td style="font-style:italic;color:var(--accent);font-size:0.85rem;cursor:pointer;" onclick="showDetail('${encodeURIComponent(e.model)}')" title="Click for full report">${e.persona_tag || 'View Report →'}</td>
     </tr>`;
   }).join('');
 }

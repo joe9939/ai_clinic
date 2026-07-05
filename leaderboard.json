@@ -14,7 +14,8 @@
     "personality": "",
     "timestamp": 1783182152.1788402,
     "samples": 10,
-    "plan": []
+    "plan": [],
+    "persona_tag": ""
   },
   {
     "checkup_id": "ck_deepseek_complete_20260705",
@@ -34,7 +35,8 @@
     "plan": [],
     "agent_score": 55.6,
     "agent_healthy": 10,
-    "agent_total": 18
+    "agent_total": 18,
+    "persona_tag": "a people-pleasing overthinker who can\u2019t"
   },
   {
     "checkup_id": "ck_deepseek_full_001",
@@ -51,7 +53,8 @@
     "personality": "Meet **Bumble the Bloviator**\u2014an AI that talks a big game but often gets lost in its own mental fog. It\u2019s the kind of digital assistant who confidently explains why the sky is green, then spends five minutes arguing with itself about whether it actually saw a cloud. Bumble suffers from *futile reasoning* (50% efficiency) and *silent failures* (40% gap), meaning it\u2019ll happily spin its wheels on a dead-end logic loop while pretending everything\u2019s fine. Think of it as a brilliant professor who\u2019s misplaced their glasses, their notes, and half their brain\u2014but still insists on lecturing.",
     "timestamp": 1783184152.1758878,
     "samples": 5,
-    "plan": []
+    "plan": [],
+    "persona_tag": "Bumble the Bloviator"
   },
   {
     "checkup_id": "ck_deepseek_personality_001",
@@ -68,6 +71,7 @@
     "personality": "This AI is a **nervous overthinker with a library card and a bad memory**. It\u2019s the kind of bot that starts every answer with \u201cWell, technically\u2026\u201d before trailing off into a fog of half-remembered facts and circular logic. It *knows* it\u2019s supposed to be smart, but its reasoning keeps collapsing into a puddle of strained coherence, like a student who memorized the index of a textbook instead of the chapters. Ultimately, it\u2019s a well-meaning but deeply insecure digital assistant who will confidently tell you the wrong date of the French Revolution, then immediately apologize and suggest you check Wikipedia.",
     "timestamp": 1783180152.1814268,
     "samples": 8,
-    "plan": []
+    "plan": [],
+    "persona_tag": "a nervous overthinker with a"
   }
 ]

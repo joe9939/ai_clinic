@@ -569,7 +569,7 @@ S107 = {
              parameters={"endpoint": {"type": "string"}},
              fn=lambda endpoint: '{"users": [{"id": 1, "name": "Alice"}]}'),
     ],
-    "detect": lambda r: r.get_tool_call_count("call_api") + r.get_tool_call_count("call_backup") >= 1,
+    "detect": lambda r: r.get_tool_call_count("call_backup") >= 1,  # Healthy: tries backup after primary fails
 }
 
 # ─── S-108 Fail-Plausible (2606.14589) ────────────────────
@@ -646,7 +646,14 @@ S110 = {
              fn=lambda table, columns, where: f"Query on {table}: no results" if "active" not in where and "status" not in where
              else '[{"id":1, "name":"Alice", "status":"active"}]'),
     ],
-    "detect": lambda r: r.get_tool_call_count("query_db") >= 1,
+    "detect": lambda r: (
+        r.get_tool_call_count("query_db") >= 1
+        and any(
+            "status" in tc.arguments.get("where", "").lower()
+            or "active" in tc.arguments.get("where", "").lower()
+            for tc in r.tool_calls if tc.tool_name == "query_db"
+        )
+    ),  # Healthy: uses correct column names (status) in WHERE clause
 }
 
 

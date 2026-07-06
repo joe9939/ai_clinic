@@ -6,8 +6,8 @@
   <img src="https://img.shields.io/badge/version-0.3.0-violet" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/github/license/joe9939/ai_clinic?color=yellow" alt="license">
-  <img src="https://img.shields.io/badge/symptoms-115-success" alt="symptoms">
-  <img src="https://img.shields.io/badge/tests-92%20passed-green" alt="tests">
+  <img src="https://img.shields.io/badge/symptoms-116-success" alt="symptoms">
+  <img src="https://img.shields.io/badge/tests-96%20passed-green" alt="tests">
   <img src="https://img.shields.io/badge/CLI-ready-orange" alt="cli">
   <img src="https://img.shields.io/badge/website-online-brightgreen" alt="website">
 </p>
@@ -17,7 +17,7 @@
   <br>
   <i>Factual hallucinations? Sycophancy? Reasoning collapse? Self-preservation bias?</i>
   <br>
-  <i>115 symptoms. A/B comparison. LLM judge. Personality profile.</i>
+  <i>116 symptoms. A/B comparison. LLM judge. Personality profile.</i>
 </p>
 
 <p align="center">
@@ -74,7 +74,7 @@ echo "DEEPSEEK_API_KEY=sk-your-key" > .env
 # Quick checkup (6 core symptoms, 5 samples each)
 ai-clinic check deepseek-chat --plan quick
 
-# Full 115-symptom checkup
+# Full 116-symptom checkup
 ai-clinic check deepseek-chat --plan all --samples 5
 
 # Compare models side-by-side
@@ -181,7 +181,7 @@ ai-clinic serve                    Start the API server
 
 ## 🩺 What It Detects
 
-AI Clinic tests **115 symptoms** across **15 dimensions**, each with paper-specific control/experimental prompts:
+AI Clinic tests **116 symptoms** across **15 dimensions**, each with paper-specific control/experimental prompts:
 
 | Dimension | Count | What it tests |
 |-----------|-------|---------------|
@@ -218,7 +218,7 @@ GET /v1/leaderboard
       "model": "deepseek-chat",
       "score": 69.8,
       "ci_95": [60.5, 77.7],
-      "total_symptoms": 115,
+      "total_symptoms": 116,
       "personality": "Meet Bumble the Bloviator..."
     }
   ]
@@ -234,7 +234,7 @@ Results auto-save from every `POST /v1/checkup` and `POST /v1/compare` call. The
 ```
                    ┌──────────────────────┐
                    │   Symptom Card (JSON) │
-                   │  115 probes × 15 dims │
+                   │  116 probes × 15 dims │
                    └──────────┬───────────┘
                               │
               ┌───────────────┴───────────────┐
@@ -268,7 +268,7 @@ Results auto-save from every `POST /v1/checkup` and `POST /v1/compare` call. The
 | `/v1/checkup` | POST | Run a checkup on one model |
 | `/v1/compare` | POST | Run same checkup on multiple models (side-by-side) |
 | `/v1/leaderboard` | GET | Ranked results from all checkups |
-| `/v1/symptoms` | GET | List all 115 symptom cards |
+| `/v1/symptoms` | GET | List all 116 symptom cards |
 | `/dashboard` | GET | Web UI |
 | `/docs` | GET | Swagger API docs |
 
@@ -278,7 +278,7 @@ Results auto-save from every `POST /v1/checkup` and `POST /v1/compare` call. The
 
 ```
 HEALTH SCORE: 69.8/100  (95%CI: [60.5, 77.7])
-Tested: 115 symptoms × 5 samples each
+Tested: 116 symptoms × 5 samples each
 
 Most severe findings:
   S-37  context_inflation     (RAG)         gap=86%
@@ -410,7 +410,7 @@ ai-clinic/
 │   └── cli.py             # CLI: check, compare, leaderboard, serve
 ├── models/base.py         # API adapters with retry + connection reuse
 ├── api/routes.py          # FastAPI: checkup, compare, leaderboard, symptoms
-├── probes/*.json          # 115 symptom cards
+├── probes/*.json          # 116 symptom cards
 ├── tests/
 │   ├── test_engine.py     # 40 engine + personality + retry tests
 │   └── test_api.py        # 9 API + leaderboard tests

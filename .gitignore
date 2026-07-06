@@ -35,3 +35,9 @@ Thumbs.db
 output/
 data/
 **/__pycache__/
+
+# Personal analysis scripts
+map_dimensions.py
+review_scenarios.py
+run_complete_checkup.py
+run_report_v2.py

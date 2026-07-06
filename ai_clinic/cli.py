@@ -54,7 +54,7 @@ async def _run_checkup(args):
     samples = args.samples or 5
     concurrency = args.concurrency or 10
 
-    print(f"\n  AI Clinic �?Checking {model}")
+    print(f"\n  AI Clinic - Checking {model}")
     print(f"  Symptoms: {len(cards)}  Samples: {samples}  Concurrency: {concurrency}")
     print(f"  {'=' * 50}")
 

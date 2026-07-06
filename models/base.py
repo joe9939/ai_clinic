@@ -45,7 +45,7 @@ class _BaseModel:
     def __init__(self, api_key: str, model: str, base_url: str, temperature: float):
         self._api_key = api_key
         self._model = model
-        self._base_url = base_url.rstrip("/")
+        self._base_url = (base_url or "https://api.deepseek.com/v1").rstrip("/")
         self._temperature = temperature
         self._client = httpx.AsyncClient(timeout=httpx.Timeout(120.0))
 

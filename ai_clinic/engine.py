@@ -41,7 +41,7 @@ class SymptomCard:
 
     @classmethod
     def from_json(cls, path: str) -> "SymptomCard":
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         for fld in ["positive_indicators","negative_indicators","diagnostic_rule",
                      "detection_method","control_prompt","experimental_prompt","tools"]:

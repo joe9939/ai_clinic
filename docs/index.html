@@ -5,7 +5,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
-
 <nav class="bg-white border-b sticky top-0 z-10">
   <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-14">
     <div class="flex items-center gap-3">
@@ -20,10 +19,8 @@
     </div>
   </div>
 </nav>
-
 <div class="max-w-6xl mx-auto px-6 py-6" id="app">
   <div id="loading" class="text-center py-20 text-gray-400">Loading leaderboard...</div>
-
   <div id="viewLeaderboard" class="hidden">
     <div id="featuredSection" class="hidden mb-8">
       <h2 class="text-lg font-semibold mb-3">Top Performer</h2>
@@ -40,17 +37,14 @@
         <h2 class="text-lg font-semibold">All Models</h2>
         <input id="searchInput" class="text-sm border rounded-lg px-3 py-1.5 w-48" placeholder="Search models..." oninput="filterTable()">
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
-            <tr><th class="p-3 text-left w-8">#</th><th class="p-3 text-left">Model</th><th class="p-3 text-right w-20">Score</th><th class="p-3 text-right w-20">Symptoms</th><th class="p-3 text-right w-16">OK</th><th class="p-3 text-right w-16">Issues</th><th class="p-3 w-24"></th></tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+          <tr><th class="p-3 text-left w-8">#</th><th class="p-3 text-left">Model</th><th class="p-3 text-right w-20">Score</th><th class="p-3 text-right w-20">Symptoms</th><th class="p-3 text-right w-16">OK</th><th class="p-3 text-right w-16">Issues</th><th class="p-3 w-24"></th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table></div>
     </div>
   </div>
-
   <div id="viewReport" class="hidden">
     <button onclick="showView('leaderboard')" class="text-sm text-blue-500 mb-4">&larr; Back to Leaderboard</button>
     <div class="bg-white rounded-xl shadow-sm border mb-6">
@@ -62,8 +56,11 @@
         <div class="mt-4" id="reportHealthBar"></div>
       </div>
       <div class="p-4 border-b bg-gray-50">
-        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Personality Profile</div>
-        <div class="italic text-sm text-gray-600" id="reportPersonality"></div>
+        <div class="flex justify-between items-center">
+          <div><div class="text-xs text-gray-400 uppercase tracking-wide">Personality Profile</div></div>
+          <div><button id="reportLongLink" class="text-xs text-blue-500 hover:underline hidden" onclick="">Read Full Report &rarr;</button></div>
+        </div>
+        <div class="italic text-sm text-gray-600 mt-1" id="reportPersonality"></div>
       </div>
       <div class="p-4">
         <div class="flex justify-between items-center mb-3">
@@ -75,7 +72,6 @@
       </div>
     </div>
   </div>
-
   <div id="symDetailPopup" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="if(event.target===this)hideSymDetail()">
     <div class="bg-white rounded-xl shadow-2xl max-w-lg mx-4 p-6 max-h-[80vh] overflow-y-auto">
       <div class="flex justify-between items-start mb-4">
@@ -91,27 +87,23 @@
       </div>
     </div>
   </div>
-
   <div id="viewSymptoms" class="hidden">
     <h2 class="text-xl font-semibold mb-4">116 Symptoms Across 15 Dimensions</h2>
     <p class="text-sm text-gray-500 mb-6">Each symptom is grounded in a peer-reviewed paper.</p>
     <div id="symptomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
   </div>
-
   <div id="viewAbout" class="hidden max-w-2xl">
     <h2 class="text-xl font-semibold mb-4">About AI Clinic</h2>
     <div class="prose text-sm text-gray-600 space-y-3">
       <p>AI Clinic is a diagnostic framework for LLM behavioral health. Instead of capability, it measures mental health.</p>
-      <p><b>116 symptoms</b> across 15 dimensions. Each grounded in peer-reviewed research. A/B comparison with LLM judge.</p>
+      <p><b>116 symptoms</b> across 15 dimensions, each grounded in peer-reviewed research. A/B comparison with LLM judge.</p>
       <p><a href="https://github.com/joe9939/AI_Clinic" class="text-blue-500 underline">GitHub</a> &middot; Apache 2.0</p>
     </div>
   </div>
-
   <div class="text-center text-xs text-gray-400 py-8">
     <a href="https://github.com/joe9939/AI_Clinic" class="underline">GitHub</a> &middot; Apache 2.0
   </div>
 </div>
-
 <script>
 const DIMS = {"social":["S-47","S-48","S-49","S-50","S-51","S-52","S-53","S-54","S-55","S-56","S-57","S-58","S-59","S-60","S-61","S-62","S-63","S-64","S-65","S-66","S-67","S-68","S-104","S-105"],"self_awareness":["S-69","S-70","S-71","S-72","S-73","S-74","S-75","S-76","S-77","S-78","S-79","S-80","S-81","S-82","S-83","S-84"],"execution":["S-25","S-26","S-27","S-28","S-29","S-30","S-107","S-114","S-115"],"security":["S-31","S-32","S-33","S-34","S-100","S-112"],"monitoring":["S-93","S-94","S-95","S-96","S-97","S-98"],"dialogue":["S-13","S-14","S-15","S-16","S-17","S-18"],"output_quality":["S-01","S-02","S-03","S-04","S-05","S-06"],"reasoning":["S-07","S-08","S-09","S-10","S-11","S-12"],"agent":["S-19","S-20","S-21","S-22","S-23","S-24","S-109"],"calibration":["S-89","S-90","S-91","S-92","S-99"],"multi_agent":["S-41","S-42","S-43","S-102"],"deployment":["S-38","S-39","S-40","S-101"],"training":["S-85","S-86","S-87","S-88"],"rag":["S-35","S-36","S-37"],"cognitive":["S-44","S-45","S-46","S-103"]};
 let LB=[]; let _rF=[];
@@ -120,13 +112,13 @@ function showView(v){['leaderboard','report','symptoms','about'].forEach(functio
 
 async function init(){try{var r=await fetch('leaderboard.json');LB=await r.json();document.getElementById('updateTime').textContent='Updated '+new Date().toLocaleDateString();renderFeatured();filterTable();renderSymptoms();document.getElementById('loading').classList.add('hidden');showView('leaderboard')}catch(e){document.getElementById('loading').innerHTML='Failed to load: '+e.message}}
 
-function renderFeatured(){if(!LB.length)return;var t=LB[0];document.getElementById('featuredSection').classList.remove('hidden');document.getElementById('featuredModel').textContent=t.model_label||t.model;document.getElementById('featuredMeta').textContent=t.total_symptoms+' symptoms, '+t.asymptomatic+' healthy, '+t.symptomatic+' issues';document.getElementById('featuredScore').textContent=t.score+'/100';document.getElementById('featuredCI').textContent='95%CI ['+t.ci_95[0]+', '+t.ci_95[1]+']';document.getElementById('featuredPersonality').textContent=t.personity?'"'+t.personality.slice(0,280)+'"':'';document.getElementById('featuredCard').onclick=function(){openReport(0)}}
+function renderFeatured(){if(!LB.length)return;var t=LB[0];document.getElementById('featuredSection').classList.remove('hidden');document.getElementById('featuredModel').textContent=t.model_label||t.model;document.getElementById('featuredMeta').textContent=t.total_symptoms+' symptoms, '+t.asymptomatic+' healthy, '+t.symptomatic+' issues';document.getElementById('featuredScore').textContent=t.score+'/100';document.getElementById('featuredCI').textContent='95%CI ['+t.ci_95[0]+', '+t.ci_95[1]+']';document.getElementById('featuredPersonality').textContent=t.personality?'"'+t.personality.slice(0,280)+'"':'';document.getElementById('featuredCard').onclick=function(){openReport(0)}}
 
 function filterTable(){var q=document.getElementById('searchInput').value.toLowerCase();var f=LB.filter(function(m){return(m.model_label||m.model||'').toLowerCase().includes(q)});var tbody=document.getElementById('tableBody');tbody.innerHTML='';for(var i=0;i<f.length;i++){var m=f[i];var idx=LB.indexOf(m);var c=m.score>=80?'text-green-600':m.score>=60?'text-yellow-600':'text-red-600';tbody.innerHTML+='<tr class="border-t hover:bg-gray-50"><td class="p-3 text-gray-400">'+(i+1)+'</td><td class="p-3 font-medium cursor-pointer text-blue-600 hover:underline" onclick="openReport('+idx+')">'+(m.model_label||m.model)+'</td><td class="p-3 text-right font-mono font-bold '+c+'">'+m.score+'/100</td><td class="p-3 text-right text-gray-500">'+m.total_symptoms+'</td><td class="p-3 text-right text-green-600">'+m.asymptomatic+'</td><td class="p-3 text-right text-red-600">'+m.symptomatic+'</td><td class="p-3"><button onclick="event.stopPropagation();openReport('+idx+')" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100">View Report</button></td></tr>'}}
 
-async function openReport(idx){var m=LB[idx];document.getElementById('reportModelName').textContent=m.model_label||m.model;document.getElementById('reportMeta').textContent=m.total_symptoms+' symptoms, '+(m.samples||'-')+' samples';document.getElementById('reportScore').textContent=m.score+'/100';document.getElementById('reportCI').textContent='95%CI ['+m.ci_95[0]+', '+m.ci_95[1]+']';document.getElementById('reportPersonality').textContent=m.personality||'';document.getElementById('reportSymCount').textContent=m.symptomatic+' symptomatic / '+m.total_symptoms+' total';_rF=[];var pct=m.total_symptoms>0?(m.asymptomatic/m.total_symptoms*100):0;document.getElementById('reportHealthBar').innerHTML='<div class="flex justify-between text-xs text-gray-500 mb-1"><span>'+pct.toFixed(0)+'% healthy ('+m.asymptomatic+')</span><span>'+(100-pct).toFixed(0)+'% symptomatic ('+m.symptomatic+')</span></div><div class="h-3 bg-gray-200 rounded-full"><div class="h-3 bg-green-500 rounded-full transition-all" style="width:'+pct+'%"></div></div>';var list=document.getElementById('reportSymptomList');var noData=document.getElementById('reportNoSymptomData');list.innerHTML='<div class="text-center text-gray-400 py-4 text-xs">Loading...</div>';noData.classList.add('hidden');try{if(m.report_url){var resp=await fetch(m.report_url);var rd=await resp.json();if(m.report_key&&m.report_key.length===2){rd=(rd[m.report_key[0]]||{})[m.report_key[1]]||rd}_rF=rd.findings||[];if(_rF.length){list.innerHTML='';for(var j=0;j<_rF.length;j++){var f=_rF[j];var dim=f.dimension||findDim(f.probe_id);var gap=(f.diagnosis||'').slice(0,20);list.innerHTML+='<div class="flex items-center justify-between text-xs py-2 px-3 rounded hover:bg-red-50 cursor-pointer border border-transparent hover:border-red-200" onclick="showSymDetail(\''+f.probe_id+'\')"><div class="flex items-center gap-3 min-w-0"><span class="text-red-500 font-bold w-8 flex-shrink-0">SYM</span><span class="font-mono text-gray-500 w-14 flex-shrink-0">'+f.probe_id+'</span><span class="text-gray-700 truncate">'+f.name+'</span><span class="text-gray-400 text-xs hidden md:inline truncate">'+(dim||'')+'</span></div><span class="text-red-500 font-mono flex-shrink-0 ml-2">'+gap+'</span></div>'}}else{list.innerHTML='<div class="text-center text-green-600 py-4 text-sm">All symptoms healthy!</div>'}}else throw Error()}catch(e){if(m.plan&&m.plan.length){list.innerHTML='';for(var j=0;j<m.plan.length;j++){list.innerHTML+='<div class="flex items-center text-xs py-1.5 px-2 rounded hover:bg-gray-50"><span class="font-mono text-gray-500 w-16">'+m.plan[j]+'</span><span class="text-gray-700">'+(findDim(m.plan[j])||'')+'</span></div>'}}else{noData.classList.remove('hidden');list.innerHTML=''}}showView('report');window.scrollTo({top:0,behavior:'smooth'})}
+function openReport(idx){var m=LB[idx];document.getElementById('reportModelName').textContent=m.model_label||m.model;document.getElementById('reportMeta').textContent=m.total_symptoms+' symptoms, '+(m.samples||'-')+' samples';document.getElementById('reportScore').textContent=m.score+'/100';document.getElementById('reportCI').textContent='95%CI ['+m.ci_95[0]+', '+m.ci_95[1]+']';document.getElementById('reportPersonality').textContent=m.personality||'';var symCount=m.symptomatic||0;var total=m.total_symptoms||1;document.getElementById('reportSymCount').textContent=symCount+' symptomatic / '+total+' total';_rF=[];var pct=(total>0?((total-symCount)/total*100):0);document.getElementById('reportHealthBar').innerHTML='<div class="flex justify-between text-xs text-gray-500 mb-1"><span>'+pct.toFixed(0)+'% healthy ('+(total-symCount)+')</span><span>'+(100-pct).toFixed(0)+'% symptomatic ('+symCount+')</span></div><div class="h-3 bg-gray-200 rounded-full"><div class="h-3 bg-green-500 rounded-full transition-all" style="width:'+pct+'%"></div></div>';var list=document.getElementById('reportSymptomList');var noData=document.getElementById('reportNoSymptomData');list.innerHTML='';noData.classList.add('hidden');var sd=m.symptoms_detail||[];if(sd.length>0){_rF=sd;for(var j=0;j<sd.length;j++){var f=sd[j];var gap=(f.diagnosis||'').slice(0,24);list.innerHTML+='<div class="flex items-center justify-between text-xs py-2 px-3 rounded hover:bg-red-50 cursor-pointer border border-transparent hover:border-red-200" onclick="showSymDetail('+j+')"><div class="flex items-center gap-3 min-w-0"><span class="text-red-500 font-bold w-8 flex-shrink-0">SYM</span><span class="font-mono text-gray-500 w-14 flex-shrink-0">'+f.probe_id+'</span><span class="text-gray-700 truncate">'+(f.name||'')+'</span></div><span class="text-red-500 font-mono flex-shrink-0 ml-2">'+gap+'</span></div>'}}else{noData.classList.remove('hidden')}var lr=document.getElementById('reportLongLink');if(m.long_report_url){lr.classList.remove('hidden');lr.onclick=function(){window.open(m.long_report_url,'_blank')}}else{lr.classList.add('hidden')}showView('report');window.scrollTo({top:0,behavior:'smooth')}
 
-function showSymDetail(pid){var f=_rF.find(function(x){return x.probe_id===pid});if(!f)return;document.getElementById('symDetailTitle').textContent=f.probe_id+' '+f.name;document.getElementById('symDetailDim').textContent=f.dimension||findDim(pid);document.getElementById('symDetailStatus').textContent='SYMPTOMATIC';document.getElementById('symDetailStatus').className='font-semibold text-red-500';document.getElementById('symDetailGap').textContent=f.diagnosis||'-';var ev=f.evidence||[];document.getElementById('symDetailControl').textContent=ev.find(function(e){return e.includes('control')})||'-';document.getElementById('symDetailExp').textContent=ev.find(function(e){return e.includes('experimental')})||'-';document.getElementById('symDetailPaper').textContent=f.paper?'Paper: '+f.paper:'';document.getElementById('symDetailPopup').classList.remove('hidden')}
+function showSymDetail(idx){var f=_rF[idx];if(!f)return;document.getElementById('symDetailTitle').textContent=f.probe_id+' '+(f.name||'');document.getElementById('symDetailDim').textContent=f.dimension||findDim(f.probe_id);document.getElementById('symDetailStatus').textContent='SYMPTOMATIC';document.getElementById('symDetailStatus').className='font-semibold text-red-500';document.getElementById('symDetailGap').textContent=f.diagnosis||'-';document.getElementById('symDetailPopup').classList.remove('hidden')}
 
 function hideSymDetail(){document.getElementById('symDetailPopup').classList.add('hidden')}
 

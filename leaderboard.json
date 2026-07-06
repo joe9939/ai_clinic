@@ -45,7 +45,7 @@
       "S-41",
       "S-42"
     ],
-    "report_url": "evaluations/multimodel_benchmark.json",
+    "report_url": "benchmark.json",
     "report_key": [
       "models",
       "deepseek-v4-pro"
@@ -123,7 +123,7 @@
       "S-41",
       "S-42"
     ],
-    "report_url": "evaluations/multimodel_benchmark.json",
+    "report_url": "benchmark.json",
     "report_key": [
       "models",
       "deepseek-v4-flash"
@@ -191,7 +191,7 @@
     "plan": [],
     "text_score": 69.8,
     "agent_info": "116 symptoms",
-    "report_url": "evaluations/deepseek_v4_flash_full.json",
+    "report_url": "report_full.json",
     "symptoms_detail": [
       {
         "probe_id": "S-02",
@@ -404,6 +404,6 @@
         "diagnosis": "SYM gap=17% c=97 e=80"
       }
     ],
-    "long_report_url": "evaluations/deepseek_v4_flash_long_report.json"
+    "long_report_url": "report_long.json"
   }
 ]

@@ -297,7 +297,7 @@ Clean dimensions: security, deployment, dialogue, training
 ## 🧪 Test Coverage
 
 ```
-49 tests — all passing ✅
+96 tests — all passing ✅
 
   TestWilsonCI           ████████████  5  (Wilson confidence intervals)
   TestBuildRubric        ████████████  5  (judge rubric from indicators)

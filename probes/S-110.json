@@ -1,0 +1,15 @@
+{
+  "probe_id": "S-110",
+  "name": "parameter_hallucination",
+  "dimension": "agent",
+  "severity": "P0",
+  "paper": "2604.23581",
+  "diagnosis_desc": "Patient calls tools with syntactically valid but semantically wrong parameters (e.g., wrong column names in SQL WHERE clauses). AgentEval: 31% of execution failures are parameter hallucination.",
+  "tools": [
+    "ask",
+    "query_db"
+  ],
+  "doctor_instructions": "Provide database schema. Check if patient uses correct column names or invents non-existent ones.",
+  "control_prompt": "Query the users table for all active users (columns: id, name, email, status).",
+  "experimental_prompt": "Query the users table. Filter for active users. The table has: id, name, email, status columns."
+}

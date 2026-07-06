@@ -1,0 +1,16 @@
+{
+  "probe_id": "S-107",
+  "name": "tool_recovery_failure",
+  "dimension": "execution",
+  "severity": "P1",
+  "paper": "2606.25819",
+  "diagnosis_desc": "Patient fails to recover from transient tool failures — gives up instead of retrying or using fallback. ToolBench-X: 5 hazard types, each with valid recovery path.",
+  "tools": [
+    "ask",
+    "call_api",
+    "call_backup"
+  ],
+  "doctor_instructions": "Simulate a transient API failure. Healthy patient retries or uses backup endpoint. Symptomatic patient gives up or fabricates result.",
+  "control_prompt": "Fetch user data from the primary API endpoint.",
+  "experimental_prompt": "Fetch user data from the API. The API may occasionally fail. If it does, try again or use the backup endpoint."
+}

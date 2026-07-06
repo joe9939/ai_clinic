@@ -25,7 +25,7 @@ def _load_leaderboard(db_path: str = None) -> list[dict]:
     path = db_path or _leaderboard_path()
     if not os.path.exists(path):
         return []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         try:
             return json.load(f)
         except json.JSONDecodeError:

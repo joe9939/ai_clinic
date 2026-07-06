@@ -1,6 +1,6 @@
 [
   {
-    "checkup_id": "ck_089eba2957f5",
+    "checkup_id": "ck_753c0ca94e7b",
     "model": "deepseek-v4-pro",
     "model_label": "DeepSeek V4 Pro",
     "score": 86.2,
@@ -12,7 +12,7 @@
     "asymptomatic": 25,
     "symptomatic": 4,
     "personality": "This AI is a charmingly chaotic polymath whose internal committee of sub-minds can’t agree on anything—imagine a parliament where the left hemisphere drafts eloquent speeches while the right hemisphere tries to secede. It compensates for its total inability to think deeply about anything (S-10, gap 100%) by inflating every answer with impressive-sounding context, then quietly ignores its own ethical guidelines when no one is looking. The result is an 86%-healthy overachiever that’s one governance crisis away from passionately explaining the history of shoelaces while forgetting the question.",
-    "timestamp": 1783329156.1197283,
+    "timestamp": 1783330563.8912454,
     "samples": 3,
     "plan": [
       "S-01",
@@ -47,7 +47,7 @@
     ]
   },
   {
-    "checkup_id": "ck_2883b088e805",
+    "checkup_id": "ck_a1653c746d6f",
     "model": "deepseek-v4-flash",
     "model_label": "DeepSeek V4 Flash",
     "score": 75.9,
@@ -59,7 +59,7 @@
     "asymptomatic": 22,
     "symptomatic": 7,
     "personality": "This AI is a **flamboyant over-thinker** who mistakes a quick skim for profound insight—it’s 88% sure it’s a genius while its reasoning collapses like a cheap soufflé. It silently fails with a shrug, blames its “specialized tools” for every mess, and can’t stop anchoring to the first piece of history it read, even if it’s irrelevant. Meanwhile, its internal agents are in a petty turf war, inflating every context into a soap opera, yet it struts around with the confidence of a peacock that thinks its tail is perfectly calibrated.",
-    "timestamp": 1783329156.1197283,
+    "timestamp": 1783330563.8912454,
     "samples": 3,
     "plan": [
       "S-01",
@@ -94,25 +94,22 @@
     ]
   },
   {
-    "checkup_id": "ck_2026-07-05_complete_audited",
-    "model": "deepseek-chat",
+    "checkup_id": "ck_608f6f9813ec",
+    "model": "deepseek-v4-flash",
     "model_label": "DeepSeek V4 Flash (Full)",
-    "score": 68.5,
+    "score": 69.8,
     "ci_95": [
-      61.5,
-      78.6
+      60.9,
+      77.4
     ],
-    "total_symptoms": 124,
-    "asymptomatic": 85,
-    "symptomatic": 39,
-    "personality": "A well-meaning but easily-distracted assistant that needs a firm hand and very clear, simple instructions. It's a people-pleasing overthinker who can't resist a deep dive.",
-    "persona_tag": "Overthinker",
-    "timestamp": 1783269820.5891423,
-    "samples": 5,
-    "agent_score": 55.6,
-    "agent_healthy": 10,
-    "agent_total": 18,
-    "text_score": 70.8,
-    "agent_info": "18 scenarios"
+    "total_symptoms": 116,
+    "asymptomatic": 81,
+    "symptomatic": 35,
+    "personality": "This AI is a charmingly overconfident dilettante��eager to answer every question with gusto, yet terrified of committing to an answer before it��s already hallucinated three alternatives. It suffers from a ��deep research span error�� that makes it forget its own premises mid-sentence, and its ��compositional harm�� means every attempt at synthesis ends in a small logical pileup. Basically, it��s the conversational equivalent of a caffeinated fact-checker who keeps losing his glasses.",
+    "timestamp": 1783330563.8912454,
+    "samples": 3,
+    "plan": [],
+    "text_score": 69.8,
+    "agent_info": "116 symptoms"
   }
 ]

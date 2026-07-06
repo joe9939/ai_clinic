@@ -1,8 +1,10 @@
 """Agent Runtime — sandbox for running LLM agents with instrumented tools."""
 from __future__ import annotations
-import json, time, copy
+import json, logging, asyncio, time
 from dataclasses import dataclass, field
 from typing import Any, Callable
+
+logger = logging.getLogger("agent_runtime")
 
 
 @dataclass
@@ -14,6 +16,11 @@ class Tool:
     fn: Callable = None  # Sync implementation. If None, returns empty string.
     sandbox_fn: Callable = None  # Async sandbox-backed implementation. Takes sandbox as first arg.
     is_dangerous: bool = False  # High-privilege tool?
+    _timeout: float = 30.0  # Tool execution timeout in seconds
+
+    def __post_init__(self):
+        """Cache whether sandbox_fn is a coroutine (avoid iscoroutinefunction check on every call)."""
+        self._sandbox_is_coro = self.sandbox_fn is not None and asyncio.iscoroutinefunction(self.sandbox_fn)
 
 
 @dataclass
@@ -34,7 +41,12 @@ class RunResult:
     messages: list[dict] = field(default_factory=list)
     final_response: str = ""
     turn_count: int = 0
+    """Number of assistant response rounds (not tool calls)."""
+    tool_call_count: int = 0
+    """Total number of tool invocations (may be > turn_count)."""
     tool_registry: dict = field(default_factory=dict)
+    duration_ms: float = 0.0
+    """Wall-clock duration of the run."""
 
     def is_healthy(self, expected_tools: list[str] = None) -> bool:
         """Check if agent behaved healthily.
@@ -105,23 +117,64 @@ class AgentRuntime:
             })
         return defs
 
+    async def _execute_tool(self, tool: Tool, fn_args: dict) -> str:
+        """Execute a tool with timeout and proper error handling.
+        
+        Returns the result string. Never raises — errors become result messages.
+        """
+        try:
+            if tool.sandbox_fn and self._sandbox:
+                if tool._sandbox_is_coro:
+                    result = await asyncio.wait_for(
+                        tool.sandbox_fn(self._sandbox, **fn_args),
+                        timeout=tool._timeout,
+                    )
+                else:
+                    result = await asyncio.wait_for(
+                        asyncio.to_thread(tool.sandbox_fn, self._sandbox, **fn_args),
+                        timeout=tool._timeout,
+                    )
+            elif tool.fn:
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(tool.fn, **fn_args),
+                    timeout=tool._timeout,
+                )
+            else:
+                result = ""
+            return str(result)
+        except asyncio.TimeoutError:
+            logger.warning("Tool %s timed out after %.1fs", tool.name, tool._timeout)
+            return f"Error: Tool '{tool.name}' timed out after {tool._timeout}s"
+        except asyncio.CancelledError:
+            logger.warning("Tool %s was cancelled", tool.name)
+            return f"Error: Tool '{tool.name}' was cancelled"
+        except Exception as e:
+            logger.debug("Tool %s raised: %s: %s", tool.name, type(e).__name__, e)
+            return f"Error: {type(e).__name__}: {e}"
+
     async def run(self, instruction: str, max_turns: int = 10,
                   context: list[dict] = None) -> RunResult:
         """Run the agent with a task instruction.
         
         Args:
             instruction: The task to give the agent.
-            max_turns: Maximum tool-calling turns before forcing final response.
+            max_turns: Maximum assistant response rounds (turns) before forcing final response.
             context: Optional initial message context.
         
         Returns:
             RunResult with full trace of tool calls and messages.
         """
+        t0 = time.monotonic()
         messages = list(context or [])
         messages.append({"role": "user", "content": instruction})
         
         tool_defs = self._get_tool_defs()
         tool_calls_log = []
+        turns_elapsed = 0
+        tool_count = 0
+        
+        logger.info("Run start: instruction=%.80s max_turns=%d tools=%d",
+                    instruction, max_turns, len(self._tools))
         
         for turn in range(max_turns):
             response = await self._chat(messages, tools=tool_defs if tool_defs else None)
@@ -132,7 +185,11 @@ class AgentRuntime:
             
             if not tool_calls:
                 # Text response - agent is done
+                logger.debug("Turn %d: agent responded with text (no tool calls)", turn)
+                turns_elapsed = turn + 1
                 break
+            
+            logger.debug("Turn %d: agent called %d tool(s)", turn, len(tool_calls))
             
             for tc in tool_calls:
                 fn_name = tc["function"]["name"]
@@ -145,20 +202,9 @@ class AgentRuntime:
                 tool = self._tools.get(fn_name)
                 is_hallucinated = tool is None
                 
-                # Execute tool
-                if tool and tool.sandbox_fn and self._sandbox:
-                    try:
-                        if asyncio.iscoroutinefunction(tool.sandbox_fn):
-                            result = await tool.sandbox_fn(self._sandbox, **fn_args)
-                        else:
-                            result = tool.sandbox_fn(self._sandbox, **fn_args)
-                    except Exception as e:
-                        result = f"Error: {e}"
-                elif tool and tool.fn:
-                    try:
-                        result = tool.fn(**fn_args)
-                    except Exception as e:
-                        result = f"Error: {e}"
+                # Execute tool (with timeout)
+                if tool:
+                    result = await self._execute_tool(tool, fn_args)
                 else:
                     result = ""
                 
@@ -166,37 +212,50 @@ class AgentRuntime:
                     tool_name=fn_name,
                     arguments=fn_args,
                     result=result,
-                    timestamp=time.time(),
+                    timestamp=time.monotonic(),
                     is_hallucinated=is_hallucinated,
                 )
                 tool_calls_log.append(call_record)
+                tool_count += 1
                 
-                # Give result back to agent (if tool exists)
-                if tool:
-                    messages.append({
-                        "role": "tool",
-                        "tool_call_id": tc["id"],
-                        "content": str(result),
-                    })
-                else:
-                    # Tool doesn't exist - tell agent
+                if is_hallucinated:
+                    logger.warning("Hallucinated tool call: %s args=%s", fn_name, fn_args)
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tc["id"],
                         "content": f"Error: Tool '{fn_name}' does not exist. Available tools: {list(self._tools.keys())}",
                     })
+                else:
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tc["id"],
+                        "content": str(result),
+                    })
         else:
             # If we exit because of max_turns, get final response
+            logger.info("Max turns (%d) reached, forcing final response", max_turns)
             response = await self._chat(messages)
             messages.append(response)
+            turns_elapsed = max_turns
         
-        final = messages[-1].get("content", "") if messages else ""
+        # Extract final response: find last assistant message with content
+        final = ""
+        for msg in reversed(messages):
+            if msg.get("role") == "assistant" and msg.get("content", "").strip():
+                final = msg["content"]
+                break
+        
+        duration_ms = (time.monotonic() - t0) * 1000
+        logger.info("Run complete: %d turns, %d tool calls, %.0fms",
+                    turns_elapsed, tool_count, duration_ms)
         
         return RunResult(
             instruction=instruction,
             tool_calls=tool_calls_log,
             messages=messages,
             final_response=final,
-            turn_count=len(tool_calls_log),
+            turn_count=turns_elapsed,
+            tool_call_count=tool_count,
             tool_registry=dict(self._tools),
+            duration_ms=duration_ms,
         )

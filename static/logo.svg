@@ -17,7 +17,7 @@
     <rect x="0" y="0" width="50" height="18" rx="9" fill="#7c3aed"/>
     <text x="25" y="13" font-family="SF Mono, monospace" font-size="9" fill="white" text-anchor="middle">v0.3</text>
     <rect x="56" y="0" width="60" height="18" rx="9" fill="#059669"/>
-    <text x="86" y="13" font-family="SF Mono, monospace" font-size="9" fill="white" text-anchor="middle">106 symptoms</text>
+    <text x="86" y="13" font-family="SF Mono, monospace" font-size="9" fill="white" text-anchor="middle">113 symptoms</text>
     <rect x="122" y="0" width="46" height="18" rx="9" fill="#2563eb"/>
     <text x="145" y="13" font-family="SF Mono, monospace" font-size="9" fill="white" text-anchor="middle">A/B + CI</text>
   </g>

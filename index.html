@@ -70,17 +70,13 @@
         <div id="reportSymptomList" class="space-y-1"></div>
         <div id="reportNoSymptomData" class="text-center py-8 text-gray-400 hidden">No per-symptom data available.</div>
       </div>
-    </div>
-  </div>
-  <div id="viewFullReport" class="hidden">
-    <button onclick="showView('report')" class="text-sm text-blue-500 mb-4">&larr; Back to Report</button>
-    <div class="bg-white rounded-xl shadow-sm border mb-6 p-6">
-      <div class="text-lg font-bold mb-2" id="fullReportTitle">Full Clinical Report</div>
-      <div class="text-xs text-gray-400 mb-4" id="fullReportMeta"></div>
-      <div id="fullReportContent" class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
-      <div id="fullReportDimensions" class="mt-6 border-t pt-4"></div>
-    </div>
-  </div>
+      <div id="reportFullSection" class="hidden border-t">
+        <div class="p-4">
+          <div class="text-xs text-gray-400 uppercase tracking-wide mb-3">Clinical Evaluation Report</div>
+          <div id="reportFullContent" class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+          <div id="reportFullDimensions" class="mt-4 border-t pt-3"></div>
+        </div>
+      </div>
   <div id="symDetailPopup" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="if(event.target===this)hideSymDetail()">
     <div class="bg-white rounded-xl shadow-2xl max-w-lg mx-4 p-6 max-h-[80vh] overflow-y-auto">
       <div class="flex justify-between items-start mb-4">
@@ -220,6 +216,7 @@ function openReport(idx){
   var lr=document.getElementById('reportLongLink');
   if(m.long_report_url){
     lr.classList.remove('hidden');
+    loadFullReportInline(m);
   }else{
     lr.classList.add('hidden');
   }
@@ -235,31 +232,36 @@ function showSymDetail(idx){
   document.getElementById('symDetailStatus').textContent='SYMPTOMATIC';
   document.getElementById('symDetailStatus').className='font-semibold text-red-500';
   document.getElementById('symDetailGap').textContent=f.diagnosis||'-';
+  var ev=f.evidence||[];
+  if(ev.length>0){
+    document.getElementById('symDetailControl').textContent=ev[0]||'-';
+    document.getElementById('symDetailExp').textContent=ev[1]||'-';
+  }else{
+    document.getElementById('symDetailControl').textContent='(embedded data)';
+    document.getElementById('symDetailExp').textContent='(embedded data)';
+  }
   document.getElementById('symDetailPopup').classList.remove('hidden');
 }
 
 function hideSymDetail(){document.getElementById('symDetailPopup').classList.add('hidden')}
 
-function loadFullReport(){
-  var m=window._lastReportModel;
-  if(!m||!m.long_report_url){return}
-  var url=BASE_URL+m.long_report_url;
-  document.getElementById('fullReportTitle').textContent=(m.model_label||m.model)+' — Clinical Evaluation';
-  document.getElementById('fullReportMeta').textContent=m.score+'/100 | '+m.total_symptoms+' symptoms | '+m.symptomatic+' findings';
-  document.getElementById('fullReportContent').textContent='Loading full report...';
-  document.getElementById('fullReportDimensions').innerHTML='';
-  showView('fullReport');
-  fetch(url).then(function(r){return r.json()}).then(function(data){
-    document.getElementById('fullReportContent').textContent=data.report||'No report content.';
-    var dims=data.dimensions||[];
+function loadFullReportInline(m){
+  var section=document.getElementById('reportFullSection');
+  var content=document.getElementById('reportFullContent');
+  var dims=document.getElementById('reportFullDimensions');
+  section.classList.remove('hidden');
+  content.textContent='Loading clinical report...';
+  dims.innerHTML='';
+  fetch(BASE_URL+m.long_report_url).then(function(r){return r.json()}).then(function(data){
+    content.textContent=data.report||'';
+    var d=data.dimensions||[];
     var html='<div class="font-medium text-sm text-gray-700 mb-2">Six-Dimension Portrait</div>';
-    for(var i=0;i<dims.length;i++){
-      html+='<div class="flex items-start gap-2 py-1"><span class="text-lg flex-shrink-0">'+dims[i].emoji+'</span><div><div class="font-medium text-xs">'+dims[i].label+'</div><div class="text-xs text-gray-500">'+dims[i].persona+'</div></div></div>';
+    for(var i=0;i<d.length;i++){
+      html+='<div class="flex items-start gap-2 py-1"><span class="text-lg flex-shrink-0">'+d[i].emoji+'</span><div><div class="font-medium text-xs">'+d[i].label+'</div><div class="text-xs text-gray-500">'+(d[i].persona||'')+'</div></div></div>';
     }
-    document.getElementById('fullReportDimensions').innerHTML=html;
-    window.scrollTo({top:0,behavior:'smooth'});
+    dims.innerHTML=html;
   }).catch(function(e){
-    document.getElementById('fullReportContent').textContent='Failed to load report: '+e.message;
+    content.textContent='Report not available yet.';
   });
 }
 

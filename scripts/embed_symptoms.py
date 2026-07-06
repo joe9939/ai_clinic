@@ -29,6 +29,7 @@ for entry in lb:
             "name": f.get("name", ""),
             "dimension": f.get("dimension", ""),
             "diagnosis": f.get("diagnosis", ""),
+            "evidence": f.get("evidence", []),
         })
     
     entry["symptoms_detail"] = symptoms_detail
@@ -37,9 +38,9 @@ for entry in lb:
     if plan:
         entry["plan"] = plan
     
-    # Add long report URL
+    # Add long report URL (root-level for GH Pages)
     if total >= 116:
-        entry["long_report_url"] = "evaluations/deepseek_v4_flash_long_report.json"
+        entry["long_report_url"] = "report_long.json"
     
     print(f"{entry['model_label']:30s}  {len(symptoms_detail)} symptoms embedded")
 

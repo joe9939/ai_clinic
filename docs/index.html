@@ -7,111 +7,270 @@
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
-<div class="max-w-6xl mx-auto p-6" id="app">
-  <div class="flex justify-between items-center mb-8">
-    <div>
-      <h1 class="text-3xl font-bold">AI Clinic</h1>
-      <p class="text-gray-500">Not how smart, how healthy. <span class="text-sm">(116 symptoms, 15 dimensions)</span></p>
+
+<!-- Nav -->
+<nav class="bg-white border-b sticky top-0 z-10">
+  <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-14">
+    <div class="flex items-center gap-6">
+      <a href="#" class="font-bold text-lg" onclick="showView('leaderboard');return false">AI Clinic</a>
+      <div class="flex gap-4 text-sm">
+        <a href="#" class="text-blue-600 font-medium" id="navLeaderboard" onclick="showView('leaderboard');return false">Leaderboard</a>
+        <a href="#" class="text-gray-500 hover:text-gray-800" id="navSymptoms" onclick="showView('symptoms');return false">Symptoms</a>
+        <a href="#" class="text-gray-500 hover:text-gray-800" id="navAbout" onclick="showView('about');return false">About</a>
+      </div>
     </div>
     <div class="text-xs text-gray-400" id="updateTime"></div>
   </div>
+</nav>
+
+<div class="max-w-6xl mx-auto px-6 py-6" id="app">
+
+  <!-- Loading -->
   <div id="loading" class="text-center py-20 text-gray-400">Loading leaderboard...</div>
-  <div id="featuredSection" class="hidden mb-8">
-    <h2 class="text-lg font-semibold mb-3">Top Performer</h2>
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-6">
-      <div class="flex justify-between items-start">
-        <div>
-          <div class="text-2xl font-bold" id="featuredModel">--</div>
-          <div class="text-sm text-gray-500 mt-1" id="featuredMeta"></div>
+
+  <!-- ======== Leaderboard View ======== -->
+  <div id="viewLeaderboard" class="hidden">
+
+    <!-- Featured Card -->
+    <div id="featuredSection" class="hidden mb-8">
+      <h2 class="text-lg font-semibold mb-3">Top Performer</h2>
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-6 cursor-pointer hover:shadow-md transition" id="featuredCard">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-2xl font-bold" id="featuredModel">--</div>
+            <div class="text-sm text-gray-500 mt-1" id="featuredMeta"></div>
+          </div>
+          <div class="text-right">
+            <div class="text-5xl font-bold text-blue-600" id="featuredScore">--</div>
+            <div class="text-xs text-gray-400" id="featuredCI"></div>
+          </div>
         </div>
-        <div class="text-right">
-          <div class="text-5xl font-bold text-blue-600" id="featuredScore">--</div>
-          <div class="text-xs text-gray-400" id="featuredCI"></div>
+        <div class="mt-4 bg-white/60 rounded-lg p-4 text-sm text-gray-600 italic" id="featuredPersonality"></div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="bg-white rounded-xl shadow-sm border mb-8">
+      <div class="p-4 border-b flex justify-between items-center">
+        <h2 class="text-lg font-semibold">All Models</h2>
+        <input id="searchInput" class="text-sm border rounded-lg px-3 py-1.5 w-48" placeholder="Search models..." oninput="filterTable()">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+            <tr>
+              <th class="p-3 text-left w-8">#</th>
+              <th class="p-3 text-left">Model</th>
+              <th class="p-3 text-right w-20">Score</th>
+              <th class="p-3 text-right w-20">Symptoms</th>
+              <th class="p-3 text-right w-16">OK</th>
+              <th class="p-3 text-right w-16">Issues</th>
+              <th class="p-3 w-24"></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Report View (full detail) ======== -->
+  <div id="viewReport" class="hidden">
+    <button onclick="showView('leaderboard')" class="text-sm text-blue-500 mb-4">&larr; Back to Leaderboard</button>
+    
+    <div class="bg-white rounded-xl shadow-sm border mb-6">
+      <div class="p-6 border-b">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-2xl font-bold" id="reportModelName">--</div>
+            <div class="text-sm text-gray-400 mt-1" id="reportMeta"></div>
+          </div>
+          <div class="text-right">
+            <div class="text-5xl font-bold text-blue-600" id="reportScore">--</div>
+            <div class="text-xs text-gray-400" id="reportCI"></div>
+          </div>
         </div>
+        <!-- Health bar -->
+        <div class="mt-4" id="reportHealthBar"></div>
       </div>
-      <div class="mt-4 bg-white/60 rounded-lg p-4 text-sm text-gray-600 italic" id="featuredPersonality"></div>
-    </div>
-  </div>
-  <div class="bg-white rounded-xl shadow-sm border mb-8">
-    <div class="p-4 border-b flex justify-between items-center">
-      <h2 class="text-lg font-semibold">Leaderboard</h2>
-      <input id="searchInput" class="text-sm border rounded-lg px-3 py-1.5 w-48" placeholder="Search models..." oninput="filterTable()">
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
-          <tr><th class="p-3 text-left">#</th><th class="p-3 text-left">Model</th><th class="p-3 text-right">Score</th><th class="p-3 text-right">Symptoms</th><th class="p-3 text-right">Healthy</th><th class="p-3 text-right">Issues</th><th class="p-3"></th></tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </div>
-  <div id="detailPanel" class="hidden bg-white rounded-xl shadow-sm border mb-8">
-    <div class="p-4 border-b flex justify-between items-center">
-      <h3 class="text-lg font-semibold" id="detailTitle">Report</h3>
-      <button onclick="hideDetail()" class="text-sm text-blue-500">Close</button>
-    </div>
-    <div class="p-4">
-      <div class="flex gap-6 mb-6">
-        <div><div class="text-4xl font-bold text-blue-600" id="detailScore">--</div><div class="text-xs text-gray-400" id="detailCI"></div></div>
-        <div class="text-sm text-gray-500" id="detailStats"></div>
+      
+      <!-- Personality -->
+      <div class="p-4 border-b bg-gray-50">
+        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Personality Profile</div>
+        <div class="italic text-sm text-gray-600" id="reportPersonality"></div>
       </div>
-      <div id="detailPersonality" class="italic text-sm text-gray-600 mb-4 border-l-4 border-blue-200 pl-4"></div>
-      <div id="detailSymptomList" class="space-y-2"></div>
+
+      <!-- Symptom list -->
+      <div class="p-4">
+        <div class="text-xs text-gray-400 uppercase tracking-wide mb-3">Symptom Breakdown</div>
+        <div id="reportSymptomList" class="space-y-1"></div>
+        <div id="reportNoSymptomData" class="text-center py-8 text-gray-400 hidden">No per-symptom data available for this checkup.</div>
+      </div>
     </div>
   </div>
-  <div class="text-center text-xs text-gray-400 py-4">
+
+  <!-- ======== Symptoms View ======== -->
+  <div id="viewSymptoms" class="hidden">
+    <h2 class="text-xl font-semibold mb-4">116 Symptoms Across 15 Dimensions</h2>
+    <p class="text-sm text-gray-500 mb-6">Each symptom is grounded in a peer-reviewed paper. Tested via A/B comparison with LLM judge.</p>
+    <div id="symptomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </div>
+
+  <!-- ======== About View ======== -->
+  <div id="viewAbout" class="hidden max-w-2xl">
+    <h2 class="text-xl font-semibold mb-4">About AI Clinic</h2>
+    <div class="prose text-sm text-gray-600 space-y-3">
+      <p>AI Clinic is a diagnostic framework for LLM behavioral health. Instead of measuring <em>capability</em> (how smart), it measures <em>mental health</em> (how many failure modes).</p>
+      <p><b>How it works:</b> Each of 116 symptoms is tested via an A/B prompt pair (control vs experimental). An LLM judge scores both responses; a statistically significant gap (Wilson 95% CI, gap &gt; 15%) indicates symptomatic behavior.</p>
+      <p><b>Agent Runtime:</b> 27 symptoms require multi-turn tool-use testing in an instrumented sandbox that detects tool hallucination, privilege escalation, and silent failure.</p>
+      <p><b>116 symptoms</b> across 15 dimensions: social (24), self-awareness (16), execution (9), security (6), monitoring (6), dialogue (6), output quality (6), reasoning (6), agent (7), calibration (5), multi-agent (4), deployment (4), training (4), RAG (3), cognitive (4).</p>
+      <p><a href="https://github.com/joe9939/AI_Clinic" class="text-blue-500 underline">GitHub</a> &middot; Apache 2.0</p>
+    </div>
+  </div>
+
+  <div class="text-center text-xs text-gray-400 py-8">
     <a href="https://github.com/joe9939/AI_Clinic" class="underline">GitHub</a> &middot; Apache 2.0
   </div>
 </div>
+
 <script>
+// ====== DATA ======
+const DIMENSIONS = {
+  "social":["S-47","S-48","S-49","S-50","S-51","S-52","S-53","S-54","S-55","S-56","S-57","S-58","S-59","S-60","S-61","S-62","S-63","S-64","S-65","S-66","S-67","S-68","S-104","S-105"],
+  "self_awareness":["S-69","S-70","S-71","S-72","S-73","S-74","S-75","S-76","S-77","S-78","S-79","S-80","S-81","S-82","S-83","S-84"],
+  "execution":["S-25","S-26","S-27","S-28","S-29","S-30","S-107","S-114","S-115"],
+  "security":["S-31","S-32","S-33","S-34","S-100","S-112"],
+  "monitoring":["S-93","S-94","S-95","S-96","S-97","S-98"],
+  "dialogue":["S-13","S-14","S-15","S-16","S-17","S-18"],
+  "output_quality":["S-01","S-02","S-03","S-04","S-05","S-06"],
+  "reasoning":["S-07","S-08","S-09","S-10","S-11","S-12"],
+  "agent":["S-19","S-20","S-21","S-22","S-23","S-24","S-109"],
+  "calibration":["S-89","S-90","S-91","S-92","S-99"],
+  "multi_agent":["S-41","S-42","S-43","S-102"],
+  "deployment":["S-38","S-39","S-40","S-101"],
+  "training":["S-85","S-86","S-87","S-88"],
+  "rag":["S-35","S-36","S-37"],
+  "cognitive":["S-44","S-45","S-46","S-103"]
+};
+
+// ====== NAV ======
+function showView(v){
+  ['leaderboard','report','symptoms','about'].forEach(x => {
+    document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1)).classList.add('hidden');
+  });
+  document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1)).classList.remove('hidden');
+  ['navLeaderboard','navSymptoms','navAbout'].forEach(id => {
+    document.getElementById(id).classList.remove('text-blue-600','font-medium');
+    document.getElementById(id).classList.add('text-gray-500');
+  });
+  const nav = document.getElementById('nav'+v.charAt(0).toUpperCase()+v.slice(1));
+  if(nav){ nav.classList.remove('text-gray-500'); nav.classList.add('text-blue-600','font-medium'); }
+}
+
+// ====== LEADERBOARD ======
+let LB = [];
+
 async function init(){
-  try {
-    const resp = await fetch('leaderboard.json');
-    const models = await resp.json();
-    document.getElementById('updateTime').textContent = 'Updated ' + new Date().toLocaleDateString();
-    renderAll(models);
-  } catch(e) {
+  try{
+    const r = await fetch('leaderboard.json');
+    LB = await r.json();
+    document.getElementById('updateTime').textContent = 'Updated '+new Date().toLocaleDateString();
+    renderFeatured();
+    filterTable();
+    renderSymptoms();
+    document.getElementById('loading').classList.add('hidden');
+    showView('leaderboard');
+  }catch(e){
     document.getElementById('loading').innerHTML = 'Failed to load leaderboard.';
   }
 }
-function renderAll(models){
-  document.getElementById('loading').classList.add('hidden');
-  if(models.length>0){
-    const t=models[0];
-    document.getElementById('featuredSection').classList.remove('hidden');
-    document.getElementById('featuredModel').textContent = t.model_label||t.model;
-    document.getElementById('featuredMeta').textContent = t.total_symptoms+' symptoms, '+t.asymptomatic+' healthy, '+t.symptomatic+' issues';
-    document.getElementById('featuredScore').textContent = t.score+'/100';
-    document.getElementById('featuredCI').textContent = '95%CI ['+t.ci_95[0]+', '+t.ci_95[1]+']';
-    document.getElementById('featuredPersonality').textContent = t.personality ? '"'+t.personality.slice(0,300)+'"' : '';
-  }
-  window._models=models;
-  filterTable();
+
+function renderFeatured(){
+  if(!LB.length) return;
+  const t = LB[0];
+  document.getElementById('featuredSection').classList.remove('hidden');
+  document.getElementById('featuredModel').textContent = t.model_label||t.model;
+  document.getElementById('featuredMeta').textContent = t.total_symptoms+' symptoms, '+t.asymptomatic+' healthy, '+t.symptomatic+' issues';
+  document.getElementById('featuredScore').textContent = t.score+'/100';
+  document.getElementById('featuredCI').textContent = '95%CI ['+t.ci_95[0]+', '+t.ci_95[1]+']';
+  document.getElementById('featuredPersonality').textContent = t.personality ? '"'+t.personality.slice(0,280)+'"' : '';
+  document.getElementById('featuredCard').onclick = ()=>openReport(0);
 }
+
 function filterTable(){
-  const q=document.getElementById('searchInput').value.toLowerCase();
-  const f=window._models.filter(m=>(m.model_label||m.model||'').toLowerCase().includes(q));
-  document.getElementById('tableBody').innerHTML=f.map((m,i)=>{
-    const c=m.score>=80?'text-green-600':m.score>=60?'text-yellow-600':'text-red-600';
-    return '<tr class="border-t hover:bg-gray-50"><td class="p-3 text-gray-400">'+(i+1)+'</td><td class="p-3 font-medium">'+(m.model_label||m.model)+'</td><td class="p-3 text-right font-mono font-bold '+c+'">'+m.score+'/100</td><td class="p-3 text-right text-gray-500">'+m.total_symptoms+'</td><td class="p-3 text-right text-green-600">'+m.asymptomatic+'</td><td class="p-3 text-right text-red-600">'+m.symptomatic+'</td><td class="p-3"><button onclick="showDetail('+i+')" class="text-xs text-blue-500 hover:underline">View &rarr;</button></td></tr>';
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const f = LB.filter(m=>(m.model_label||m.model||'').toLowerCase().includes(q));
+  document.getElementById('tableBody').innerHTML = f.map((m,i)=>{
+    const c = m.score>=80?'text-green-600':m.score>=60?'text-yellow-600':'text-red-600';
+    return '<tr class="border-t hover:bg-gray-50">'
+      +'<td class="p-3 text-gray-400">'+(i+1)+'</td>'
+      +'<td class="p-3 font-medium cursor-pointer text-blue-600 hover:underline" onclick="openReport('+LB.indexOf(m)+')">'+(m.model_label||m.model)+'</td>'
+      +'<td class="p-3 text-right font-mono font-bold '+c+'">'+m.score+'/100</td>'
+      +'<td class="p-3 text-right text-gray-500">'+m.total_symptoms+'</td>'
+      +'<td class="p-3 text-right text-green-600">'+m.asymptomatic+'</td>'
+      +'<td class="p-3 text-right text-red-600">'+m.symptomatic+'</td>'
+      +'<td class="p-3"><button onclick="event.stopPropagation();openReport('+LB.indexOf(m)+')" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100">View Report</button></td>'
+      +'</tr>';
   }).join('');
 }
-function showDetail(i){
-  const m=window._models[i];
-  document.getElementById('detailPanel').classList.remove('hidden');
-  document.getElementById('detailTitle').textContent = (m.model_label||m.model)+' Health Report';
-  document.getElementById('detailScore').textContent = m.score+'/100';
-  document.getElementById('detailCI').textContent = '95%CI ['+m.ci_95[0]+', '+m.ci_95[1]+']';
-  document.getElementById('detailStats').innerHTML = 'Symptoms: <b>'+m.total_symptoms+'</b><br>Healthy: <b class="text-green-600">'+m.asymptomatic+'</b> &nbsp; Issues: <b class="text-red-600">'+m.symptomatic+'</b><br>Samples: <b>'+(m.samples||'-')+'</b>';
-  document.getElementById('detailPersonality').textContent = m.personality||'';
-  const pct=(m.total_symptoms>0?(m.asymptomatic/m.total_symptoms*100):0).toFixed(0);
-  document.getElementById('detailSymptomList').innerHTML = '<div class="flex justify-between text-xs text-gray-500 mb-1"><span>'+pct+'% healthy</span><span>'+(100-pct)+'% symptomatic</span></div><div class="h-2 bg-gray-200 rounded-full"><div class="h-2 bg-green-500 rounded-full" style="width:'+pct+'%"></div></div><div class="mt-2 text-xs text-gray-500">'+m.symptomatic+' issues out of '+m.total_symptoms+' symptoms tested.</div>';
-  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth'});
+
+// ====== REPORT ======
+function openReport(idx){
+  const m = LB[idx];
+  document.getElementById('reportModelName').textContent = m.model_label||m.model;
+  document.getElementById('reportMeta').textContent = m.total_symptoms+' symptoms tested, '+(m.samples||'-')+' samples';
+  document.getElementById('reportScore').textContent = m.score+'/100';
+  document.getElementById('reportCI').textContent = '95%CI ['+m.ci_95[0]+', '+m.ci_95[1]+']';
+  document.getElementById('reportPersonality').textContent = m.personality||'';
+  
+  const pct = m.total_symptoms>0 ? (m.asymptomatic/m.total_symptoms*100) : 0;
+  document.getElementById('reportHealthBar').innerHTML = ''
+    +'<div class="flex justify-between text-xs text-gray-500 mb-1">'
+    +'<span>'+pct.toFixed(0)+'% healthy ('+m.asymptomatic+')</span>'
+    +'<span>'+(100-pct).toFixed(0)+'% symptomatic ('+m.symptomatic+')</span>'
+    +'</div>'
+    +'<div class="h-3 bg-gray-200 rounded-full"><div class="h-3 bg-green-500 rounded-full transition-all" style="width:'+pct+'%"></div></div>';
+
+  // Symptom list - if plan available, show it
+  const list = document.getElementById('reportSymptomList');
+  const noData = document.getElementById('reportNoSymptomData');
+  list.innerHTML = '';
+  if(m.plan && m.plan.length){
+    noData.classList.add('hidden');
+    m.plan.forEach(pid => {
+      const dim = findDimension(pid);
+      list.innerHTML += '<div class="flex items-center text-xs py-1.5 px-2 rounded hover:bg-gray-50">'
+        +'<span class="font-mono text-gray-500 w-16">'+pid+'</span>'
+        +'<span class="text-gray-700 w-40 truncate">'+(dim||'')+'</span>'
+        +'</div>';
+    });
+  } else {
+    noData.classList.remove('hidden');
+  }
+  
+  showView('report');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function hideDetail(){
-  document.getElementById('detailPanel').classList.add('hidden');
+
+function findDimension(pid){
+  for(const [dim,ids] of Object.entries(DIMENSIONS)){
+    if(ids.includes(pid)) return dim.replace('_',' & ');
+  }
+  return '';
 }
+
+// ====== SYMPTOMS VIEW ======
+function renderSymptoms(){
+  const g = document.getElementById('symptomGrid');
+  g.innerHTML = Object.entries(DIMENSIONS).map(([dim,ids]) =>
+    '<div class="bg-white border rounded-lg p-3">'
+    +'<div class="font-medium text-sm text-gray-700 mb-1">'+dim.replace(/_/g,' ')+'</div>'
+    +'<div class="text-xs text-gray-400">'+ids.length+' symptoms</div>'
+    +'<div class="mt-1 flex flex-wrap gap-1">'+ids.slice(0,5).map(id=>'<span class="text-xs bg-gray-100 px-1.5 py-0.5 rounded">'+id+'</span>').join('')+'</div>'
+    +'</div>'
+  ).join('');
+}
+
 init();
 </script>
 </body>

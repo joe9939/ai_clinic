@@ -38,9 +38,13 @@ for entry in lb:
     if plan:
         entry["plan"] = plan
     
-    # Add long report URL (root-level for GH Pages)
+    # Add long report content (embedded for GH Pages compatibility)
     if total >= 116:
         entry["long_report_url"] = "report_long.json"
+        with open("report_long.json", encoding="utf-8") as f:
+            lr = json.load(f)
+        entry["long_report"] = lr.get("report", "")
+        entry["long_report_dims"] = lr.get("dimensions", [])
     
     print(f"{entry['model_label']:30s}  {len(symptoms_detail)} symptoms embedded")
 

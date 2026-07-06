@@ -214,7 +214,7 @@ function openReport(idx){
   }
   window._lastReportModel=m;
   var lr=document.getElementById('reportLongLink');
-  if(m.long_report_url){
+  if(m.long_report){
     lr.classList.remove('hidden');
     loadFullReportInline(m);
   }else{
@@ -250,19 +250,17 @@ function loadFullReportInline(m){
   var content=document.getElementById('reportFullContent');
   var dims=document.getElementById('reportFullDimensions');
   section.classList.remove('hidden');
-  content.textContent='Loading clinical report...';
-  dims.innerHTML='';
-  fetch(BASE_URL+m.long_report_url).then(function(r){return r.json()}).then(function(data){
-    content.textContent=data.report||'';
-    var d=data.dimensions||[];
+  if(m.long_report){
+    content.textContent=m.long_report;
+    var d=m.long_report_dims||[];
     var html='<div class="font-medium text-sm text-gray-700 mb-2">Six-Dimension Portrait</div>';
     for(var i=0;i<d.length;i++){
       html+='<div class="flex items-start gap-2 py-1"><span class="text-lg flex-shrink-0">'+d[i].emoji+'</span><div><div class="font-medium text-xs">'+d[i].label+'</div><div class="text-xs text-gray-500">'+(d[i].persona||'')+'</div></div></div>';
     }
     dims.innerHTML=html;
-  }).catch(function(e){
+  }else{
     content.textContent='Report not available yet.';
-  });
+  }
 }
 
 function findDim(pid){

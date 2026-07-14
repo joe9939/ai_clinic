@@ -41,6 +41,8 @@ map_dimensions.py
 review_scenarios.py
 run_complete_checkup.py
 run_report_v2.py
+eval_report.json
+index.html.bak
 
 # arXiv paper source (gitignored to keep repo clean)
 paper/

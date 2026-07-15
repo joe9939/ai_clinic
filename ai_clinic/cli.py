@@ -142,51 +142,66 @@ def _serve(args):
     uvicorn.run("api.routes:app", host=host, port=port, reload=args.reload)
 
 
+VERSION = "0.5.0"
+
 def main():
     parser = argparse.ArgumentParser(
         prog="ai-clinic",
-        description="Diagnose your LLM. Not how smart, how sick.",
+        description="LLM Mental Health Diagnostic — 119 symptoms across 15 dimensions.",
+        epilog="Example: ai-clinic check deepseek-v4-flash --plan all --samples 3 --save results.json",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--api-key", help="API key for the model provider")
-    parser.add_argument("--judge", help="Judge model (default: same as target)")
+    parser.add_argument("--version", action="version", version=f"AI Clinic v{VERSION}")
+    parser.add_argument("--api-key", help="API key (default: DEEPSEEK_API_KEY from .env)")
+    parser.add_argument("--judge", default="deepseek-v4-flash", help="Judge model (default: deepseek-v4-flash)")
 
     sub = parser.add_subparsers(dest="command", required=True)
 
     # check
-    p_check = sub.add_parser("check", help="Check a model's health")
-    p_check.add_argument("model", help="Model name (e.g. deepseek-chat, gpt-4o)")
-    p_check.add_argument("--provider", default="deepseek", help="Provider type")
+    p_check = sub.add_parser("check", help="Run a health checkup on any LLM")
+    p_check.add_argument("model", help="Model name to test (e.g. deepseek-v4-flash, gpt-4o)")
+    p_check.add_argument("--provider", default="deepseek", choices=["deepseek", "openai", "ollama", "vllm", "custom"],
+                         help="API provider (default: deepseek)")
     p_check.add_argument("--plan", default="quick",
-                         help="Symptom plan: 'all', 'quick', 'social', 'safety', or comma-separated IDs")
-    p_check.add_argument("--samples", type=int, default=5, help="Samples per symptom")
-    p_check.add_argument("--concurrency", type=int, default=10)
-    p_check.add_argument("--base-url", help="Custom API base URL")
-    p_check.add_argument("--save", help="Save report to file")
+                         help="Test plan: 'all' (119 sym), 'quick' (6), 'social' (10), 'safety' (6), or comma-separated IDs")
+    p_check.add_argument("--samples", type=int, default=5, help="A/B pairs per symptom (default: 5)")
+    p_check.add_argument("--concurrency", type=int, default=10, help="Parallel symptom testing (default: 10)")
+    p_check.add_argument("--base-url", help="Custom API base URL (for custom providers)")
+    p_check.add_argument("--save", help="Save full report JSON to path")
     p_check.set_defaults(func=_run_checkup)
 
     # compare
-    p_comp = sub.add_parser("compare", help="Compare multiple models")
-    p_comp.add_argument("models", nargs="+", help="Model names to compare")
-    p_comp.add_argument("--plan", default="S-01,S-03,S-47", help="Comma-separated symptom IDs")
-    p_comp.add_argument("--samples", type=int, default=3)
+    p_comp = sub.add_parser("compare", help="Compare two or more models side-by-side")
+    p_comp.add_argument("models", nargs="+", help="Model names (e.g. deepseek-v4-flash gpt-4o)")
+    p_comp.add_argument("--plan", default="S-01,S-03,S-47", help="Symptoms to compare (comma-separated)")
+    p_comp.add_argument("--samples", type=int, default=3, help="Samples per symptom (default: 3)")
     p_comp.add_argument("--base-url", help="Custom API base URL")
+    p_comp.add_argument("--judge", default="deepseek-v4-flash", help="Judge model (default: deepseek-v4-flash)")
     p_comp.set_defaults(func=_run_compare)
 
     # leaderboard
-    p_lb = sub.add_parser("leaderboard", help="Show leaderboard")
+    p_lb = sub.add_parser("leaderboard", help="Show the public leaderboard")
     p_lb.set_defaults(func=_show_leaderboard)
 
     # serve
-    p_serve = sub.add_parser("serve", help="Start the API server")
-    p_serve.add_argument("--host", default="0.0.0.0")
-    p_serve.add_argument("--port", type=int, default=8000)
-    p_serve.add_argument("--reload", action="store_true", help="Hot reload for development")
+    p_serve = sub.add_parser("serve", help="Start the AI Clinic API server")
+    p_serve.add_argument("--host", default="0.0.0.0", help="Bind address (default: 0.0.0.0)")
+    p_serve.add_argument("--port", type=int, default=8000, help="Port (default: 8000)")
+    p_serve.add_argument("--reload", action="store_true", help="Auto-reload on code changes")
     p_serve.set_defaults(func=_serve)
 
     args = parser.parse_args()
 
     if args.command in ("check", "compare"):
-        asyncio.run(args.func(args))
+        try:
+            asyncio.run(args.func(args))
+        except KeyboardInterrupt:
+            print("\n  Cancelled.")
+        except Exception as e:
+            print(f"\n  Error: {e}")
+            if "API" in str(e) or "key" in str(e).lower():
+                print("  Tip: Set DEEPSEEK_API_KEY in .env or pass --api-key")
+            sys.exit(1)
     else:
         args.func(args)
 

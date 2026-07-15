@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.0-violet" alt="version">
+  <img src="https://img.shields.io/badge/version-0.5.0-violet" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/github/license/joe9939/AI_Clinic?color=yellow" alt="license">
   <img src="https://img.shields.io/badge/symptoms-119-success" alt="symptoms">
